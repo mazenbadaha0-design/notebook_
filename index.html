@@ -6700,107 +6700,109 @@ No rules, just moments you want to keep.
     </div>
     <div class="page-indicator" id="pageIndicator"></div>
 
-    <script>
-        const CORRECT_PASSWORD = "2026love"; // غيرها لو حاب
+  <script>
+  const CORRECT_PASSWORD = "2026love"; // غيرها لو حاب
 
-        const overlay = document.getElementById('protect-overlay');
-        const protectInput = document.getElementById('protect-input');
-        const protectButton = document.getElementById('protect-button');
-        const protectError = document.getElementById('protect-error');
-        const bookContainer = document.getElementById('bookContainer');
+  const overlay = document.getElementById('protect-overlay');
+  const protectInput = document.getElementById('protect-input');
+  const protectButton = document.getElementById('protect-button');
+  const protectError = document.getElementById('protect-error');
+  const bookContainer = document.getElementById('bookContainer');
 
-        protectButton.addEventListener('click', () => {
-            const val = protectInput.value.trim();
-            if (val === CORRECT_PASSWORD) {
-                overlay.style.display = 'none';
-                bookContainer.style.display = 'block';
-            } else {
-                protectError.textContent = "Wrong password, try again.";
-            }
-        });
+  protectButton.addEventListener('click', () => {
+      const val = protectInput.value.trim();
+      if (val === CORRECT_PASSWORD) {
+          overlay.style.display = 'none';
+          bookContainer.style.display = 'block';
+      } else {
+          protectError.textContent = "Wrong password, try again.";
+      }
+  });
 
-        protectInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                protectButton.click();
-            }
-        });
+  protectInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+          protectButton.click();
+      }
+  });
 
-        // FLIP BOOK LOGIC
-        const pages = Array.from(document.querySelectorAll('.book .page'));
-        const nextBtn = document.getElementById('nextBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const indexBtn = document.getElementById('indexBtn');
-        const pageIndicator = document.getElementById('pageIndicator');
+  // FLIP BOOK LOGIC
+  const pages = Array.from(document.querySelectorAll('.book .page'));
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const indexBtn = document.getElementById('indexBtn');
+  const pageIndicator = document.getElementById('pageIndicator');
 
-        let currentPage = 1;
+  let currentPage = 1;
 
-        pages.forEach((p, i) => {
-            p.style.zIndex = (pages.length - i).toString();
-        });
+  pages.forEach((p, i) => {
+      p.style.zIndex = (pages.length - i).toString();
+  });
 
-        function updateButtons() {
-            pageIndicator.textContent = `Page ${currentPage} of ${pages.length}`;
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === pages.length;
-        }
+  function updateButtons() {
+      pageIndicator.textContent = `Page ${currentPage} of ${pages.length}`;
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = currentPage === pages.length;
+  }
 
-        function showPage(target) {
-            if (target < 1 || target > pages.length) return;
-            pages.forEach((p, i) => {
-                p.classList.toggle('flipped', i < target - 1);
-            });
-            currentPage = target;
-            updateButtons();
-        }
+  function showPage(target) {
+      if (target < 1 || target > pages.length) return;
+      pages.forEach((p, i) => {
+          p.classList.toggle('flipped', i < target - 1);
+      });
+      currentPage = target;
+      updateButtons();
+  }
 
-        function goNext() {
-            if (currentPage < pages.length) {
-                showPage(currentPage + 1);
-            }
-        }
+  function goNext() {
+      if (currentPage < pages.length) {
+          showPage(currentPage + 1);
+      }
+  }
 
-        function goPrev() {
-            if (currentPage > 1) {
-                showPage(currentPage - 1);
-            }
-        }
+  function goPrev() {
+      if (currentPage > 1) {
+          showPage(currentPage - 1);
+      }
+  }
 
-        function goToPage(n) {
-            showPage(n);
-        }
+  function goToPage(n) {
+      showPage(n);
+  }
 
-        nextBtn.addEventListener('click', goNext);
-        prevBtn.addEventListener('click', goPrev);
-        indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
+  nextBtn.addEventListener('click', goNext);
+  prevBtn.addEventListener('click', goPrev);
+  indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
 
-        updateButtons();
+  updateButtons();
 
-        // IMAGE PREVIEW FOR ALL PHOTO BOXES
-        const photoInputs = document.querySelectorAll('.photo-input');
+  // IMAGE PREVIEW FOR ALL PHOTO BOXES
+  const photoInputs = document.querySelectorAll('.photo-input');
 
-        photoInputs.forEach(input => {
-            input.addEventListener('change', function () {
-                const file = this.files && this.files[0];
-                if (!file) return;
+  photoInputs.forEach(input => {
+      input.addEventListener('change', function () {
+          const file = this.files && this.files[0];
+          if (!file) return;
 
-                const reader = new FileReader();
-                const photoArea = this.closest('.photo-area');
-                const img = photoArea.querySelector('img');
-                const labelSpan = photoArea.querySelector('span');
+          const reader = new FileReader();
+          const photoArea = this.closest('.photo-area');
+          const img = photoArea.querySelector('img');
+          const labelSpan = photoArea.querySelector('span');
 
-                reader.onload = function (e) {
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-                    if (labelSpan) {
-                        labelSpan.style.display = 'none';
-                    }
-                };
+          reader.onload = function (e) {
+              img.src = e.target.result;
+              img.style.display = 'block';
+              if (labelSpan) {
+                  labelSpan.style.display = 'none';
+              }
+          };
 
-                reader.readAsDataURL(file);
-            });
-        });
-        
-    <script type="module">
+          reader.readAsDataURL(file);
+      });
+  });
+</script>
+
+<!-- سكربت الفايربيز الموديول يكون سكربت منفصل بعده مباشرة -->
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -6816,7 +6818,6 @@ No rules, just moments you want to keep.
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  // تحميل أي صفحة بناءً على id الـ photos-grid
   async function loadPage(gridId) {
     const PAGE_ID = gridId;
     const ref  = doc(db, 'pages', PAGE_ID);
@@ -6838,7 +6839,6 @@ No rules, just moments you want to keep.
     });
   }
 
-  // حفظ أي صفحة بناءً على id الـ photos-grid
   async function savePage(gridId) {
     const PAGE_ID = gridId;
     const grid = document.querySelector(`#${gridId}`);
@@ -6860,7 +6860,6 @@ No rules, just moments you want to keep.
     alert(`تم حفظ ${gridId} ✅`);
   }
 
-  // عند تحميل الصفحة: حمّل كل الجريدات الموجودة
   window.addEventListener('DOMContentLoaded', () => {
     const grids = document.querySelectorAll('.photos-grid');
     grids.forEach(grid => {
@@ -6871,11 +6870,8 @@ No rules, just moments you want to keep.
     });
   });
 
-  // نعرّض دالة الحفظ للاستخدام في HTML
   window.savePage = savePage;
 </script>
-
-
 
 </body>
 </html>
