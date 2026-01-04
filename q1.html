@@ -4,6 +4,69 @@
   <title>Our 2026 Memory Book · Q1</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<body>
+
+    <!-- PASSWORD OVERLAY -->
+    <div id="protect-overlay">
+        <div id="protect-box">
+            <div id="protect-title">Private Memory Book</div>
+            <div id="protect-subtitle">For our eyes only. Please enter our password.</div>
+            <input type="password" id="protect-input" placeholder="Password">
+            <button id="protect-button">Enter our memories</button>
+            <div id="protect-error"></div>
+        </div>
+    </div>
+
+    <!-- BOOK -->
+    <div class="book-container" id="bookContainer">
+        <div class="book-shadow"></div>
+        <div class="book" id="book">
+            <!-- PAGE 1: COVER -->
+            <div class="page cover">
+                <div class="cover-inner">
+                    <div class="cover-title">Our Memory Book</div>
+                    <div class="cover-year">2026</div>
+                    <div class="cover-divider"></div>
+                    <div class="cover-subtitle">
+                        12 months, 36 pages, and our favorite moments.
+                    </div>
+                    <div class="cover-names">
+                        Just us, and our story.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: INDEX OF MONTHS -->
+            <div class="page">
+                <div class="page-content">
+                    <div class="page-header">
+                        <span class="label">Index</span>
+                        <span class="value">Months · 2026</span>
+                    </div>
+                    <div class="page-title">Where our memories live</div>
+                    <div class="page-text">
+Tap a month to open its first page.
+No rules, just moments you want to keep.
+                    </div>
+                    <div class="months-grid">
+                        <button class="month-pill" onclick="goToPage(3)">January</button>
+                        <button class="month-pill" onclick="goToPage(6)">February</button>
+                        <button class="month-pill" onclick="goToPage(9)">March</button>
+                        <button class="month-pill" onclick="goToPage(12)">April</button>
+                        <button class="month-pill" onclick="goToPage(15)">May</button>
+                        <button class="month-pill" onclick="goToPage(18)">June</button>
+                        <button class="month-pill" onclick="goToPage(21)">July</button>
+                        <button class="month-pill" onclick="goToPage(24)">August</button>
+                        <button class="month-pill" onclick="goToPage(27)">September</button>
+                        <button class="month-pill" onclick="goToPage(30)">October</button>
+                        <button class="month-pill" onclick="goToPage(33)">November</button>
+                        <button class="month-pill" onclick="goToPage(36)">December</button>
+                    </div>
+                    <div class="footer-note">
+                        Page 2 · Months index
+                    </div>
+                </div>
+            </div>
 
             <!-- JANUARY · Page 1 (Page 3) -->
             <div class="page">
