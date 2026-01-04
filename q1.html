@@ -36,37 +36,29 @@
                 </div>
             </div>
 
-            <!-- PAGE 2: INDEX OF MONTHS -->
-            <div class="page">
-                <div class="page-content">
-                    <div class="page-header">
-                        <span class="label">Index</span>
-                        <span class="value">Months · 2026</span>
-                    </div>
-                    <div class="page-title">Where our memories live</div>
-                    <div class="page-text">
+        <!-- PAGE 2: INDEX OF MONTHS -->
+<div class="page">
+  <div class="page-content">
+    <div class="page-header">
+      <span class="label">Index</span>
+      <span class="value">Months · 2026</span>
+    </div>
+    <div class="page-title">Where our memories live</div>
+    <div class="page-text">
 Tap a month to open its first page.
 No rules, just moments you want to keep.
-                    </div>
-                    <div class="months-grid">
-                        <button class="month-pill" onclick="goToPage(3)">January</button>
-                        <button class="month-pill" onclick="goToPage(6)">February</button>
-                        <button class="month-pill" onclick="goToPage(9)">March</button>
-                        <button class="month-pill" onclick="goToPage(12)">April</button>
-                        <button class="month-pill" onclick="goToPage(15)">May</button>
-                        <button class="month-pill" onclick="goToPage(18)">June</button>
-                        <button class="month-pill" onclick="goToPage(21)">July</button>
-                        <button class="month-pill" onclick="goToPage(24)">August</button>
-                        <button class="month-pill" onclick="goToPage(27)">September</button>
-                        <button class="month-pill" onclick="goToPage(30)">October</button>
-                        <button class="month-pill" onclick="goToPage(33)">November</button>
-                        <button class="month-pill" onclick="goToPage(36)">December</button>
-                    </div>
-                    <div class="footer-note">
-                        Page 2 · Months index
-                    </div>
-                </div>
-            </div>
+    </div>
+    <div class="months-grid">
+      <button class="month-pill" onclick="goToPage(3)">January</button>
+      <button class="month-pill" onclick="goToPage(6)">February</button>
+      <button class="month-pill" onclick="goToPage(9)">March</button>
+    </div>
+    <div class="footer-note">
+      Page 2 · Months index
+    </div>
+  </div>
+</div>
+
 
             <!-- JANUARY · Page 1 (Page 3) -->
             <div class="page">
@@ -1608,6 +1600,13 @@ No rules, just moments you want to keep.
   </div> <!-- إغلاق page-content -->
 </div> <!-- إغلاق page -->
 <!-- سكربت الباسورد + الفليب بوك + معاينة الصور -->
+    <div class="controls">
+        <button id="prevBtn" class="btn">Previous</button>
+        <button id="indexBtn" class="btn">Back to index</button>
+        <button id="nextBtn" class="btn">Next</button>
+      </div>
+      <div id="pageIndicator" class="page-indicator"></div>
+    </div> <!-- إغلاق book-container -->      
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const CORRECT_PASSWORD = "2026love";
