@@ -3233,11 +3233,28 @@ No rules, just moments you want to keep.
             showPage(n);
         }
 
-        nextBtn.addEventListener('click', goNext);
-        prevBtn.addEventListener('click', goPrev);
-        indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
+       nextBtn.addEventListener('click', goNext);
+prevBtn.addEventListener('click', goPrev);
+indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
 
-        updateButtons();
+// التعامل مع الهاش القادم من q2
+const hash = window.location.hash;
+
+if (hash === '#january') {
+  goToPage(3);   // January · Page 1 في index.html
+} else if (hash === '#february') {
+  goToPage(6);
+} else if (hash === '#march') {
+  goToPage(9);
+} else if (hash === '#april') {
+  goToPage(12);
+} else if (hash === '#may') {
+  goToPage(15);
+} else if (hash === '#june') {
+  goToPage(18);
+}
+
+updateButtons();
 
         // IMAGE PREVIEW FOR ALL PHOTO BOXES
         const photoInputs = document.querySelectorAll('.photo-input');
