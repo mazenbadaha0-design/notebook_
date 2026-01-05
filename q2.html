@@ -1,0 +1,3398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our 2026 Memory Book</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+       body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: radial-gradient(circle at top, #fdf3e7, #e2c9a7);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;      /* مهم */
+    align-items: center;
+    justify-content: center;
+}
+
+
+        /* ====== SIMPLE PASSWORD OVERLAY ====== */
+
+        #protect-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top, #fdf3e7, #e2c9a7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #protect-box {
+            background: #fffdf9;
+            border-radius: 18px;
+            padding: 24px 22px 20px;
+            width: 300px;
+            box-shadow:
+                0 0 0 1px rgba(140, 110, 80, 0.18),
+                0 18px 35px rgba(0, 0, 0, 0.35);
+            text-align: center;
+            position: relative;
+        }
+
+        #protect-box::before {
+            content: "❤";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: #b4745c;
+            background: #fffdf9;
+            padding: 0 6px;
+        }
+
+        #protect-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #5c4330;
+            margin-bottom: 8px;
+        }
+
+        #protect-subtitle {
+            font-size: 12px;
+            color: #8b6b4b;
+            margin-bottom: 14px;
+        }
+
+        #protect-box input {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(140, 110, 80, 0.4);
+            font-size: 13px;
+            outline: none;
+        }
+
+        #protect-box button {
+            margin-top: 12px;
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: none;
+            background: #8b4d3c;
+            color: #fffdf9;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        #protect-error {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #c74242;
+            min-height: 14px;
+        }
+
+        /* ====== BOOK STYLES ====== */
+
+        .book-container {
+    perspective: 2000px;
+    display: flex;               /* بدل none */
+    justify-content: center;
+}
+
+
+        .book {
+            position: relative;
+            width: 360px;
+            height:70vh;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease;
+        }
+
+        .book-shadow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0.18), transparent 60%);
+            filter: blur(4px);
+            transform: translateY(20px) scale(1.05);
+            z-index: -1;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #fffdf9;
+            border-radius: 10px;
+            box-shadow:
+                0 0 0 1px rgba(120, 85, 50, 0.15),
+                0 18px 30px rgba(0, 0, 0, 0.25);
+            backface-visibility: hidden;
+            transform-origin: left center;
+            padding: 18px 18px 16px 44px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow: hidden;
+        }
+
+        .page::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 0 46px;
+            background-image: linear-gradient(
+                to bottom,
+                rgba(210, 190, 160, 0.25) 1px,
+                transparent 24px
+            );
+            background-size: 100% 26px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .page::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 40px;
+            border-left: 2px solid rgba(219, 125, 125, 0.75);
+            pointer-events: none;
+        }
+
+        .page-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #8b6b4b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .page-header span.label {
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #5c4330;
+            margin-top: 6px;
+        }
+
+        .page-text {
+            font-size: 13px;
+            color: #5c4330;
+            line-height: 1.7;
+            margin-top: 6px;
+            white-space: pre-line;
+        }
+
+        .footer-note {
+            margin-top: auto;
+            font-size: 10px;
+            color: #b08b63;
+            text-align: right;
+        }
+
+        /* COVER */
+
+        .cover {
+            background: linear-gradient(135deg, #b4745c, #8b4d3c);
+            color: #fffdf9;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .cover::before,
+        .cover::after {
+            display: none;
+        }
+
+        .cover-inner {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 244, 230, 0.4);
+            padding: 28px 18px;
+            background: linear-gradient(
+                160deg,
+                rgba(255, 255, 255, 0.08),
+                rgba(0, 0, 0, 0.15)
+            );
+            box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .cover-title {
+            font-size: 22px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .cover-year {
+            margin-top: 10px;
+            font-size: 14px;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+        }
+
+        .cover-divider {
+            width: 40%;
+            margin: 14px auto 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .cover-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .cover-names {
+            margin-top: 16px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* INDEX PAGE */
+
+        .months-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        .month-pill {
+            padding: 6px 4px;
+            border-radius: 999px;
+            border: 1px solid rgba(140, 110, 80, 0.3);
+            text-align: center;
+            background: rgba(255, 248, 235, 0.9);
+            color: #5c4330;
+            cursor: pointer;
+        }
+
+        /* Navigation */
+
+        .controls {
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn {
+            background: #8b4d3c;
+            color: #fffdf9;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.23);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        .btn:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+            background: #9a5744;
+        }
+
+        .page-indicator {
+            margin-top: 6px;
+            font-size: 11px;
+            text-align: center;
+            color: #6f4e34;
+        }
+
+        /* 3D flipping */
+
+        .page {
+            transform: rotateY(0deg);
+        }
+
+        .page.flipped {
+            transform: rotateY(-180deg);
+            box-shadow:
+                0 0 0 1px rgba(120, 85, 50, 0.1),
+                -8px 12px 18px rgba(0, 0, 0, 0.25);
+        }
+
+        /* ====== PHOTO GRID (10 BOXES) ====== */
+
+        .photos-grid {
+            margin-top: 6px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .photo-box {
+            background: rgba(255, 248, 235, 0.9);
+            border-radius: 8px;
+            border: 1px dashed rgba(140, 110, 80, 0.7);
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+.page-save-wrap {
+    margin: 6px 0 0;
+    text-align: center;
+}
+
+.page-save-button {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: none;
+    background: #8b4d3c;
+    color: #fffdf9;
+    cursor: pointer;
+    font-size: 12px;
+}
+        .photo-area {
+            position: relative;
+            border-radius: 6px;
+            border: 1px dashed rgba(140, 110, 80, 0.6);
+            background: rgba(255, 253, 249, 0.9);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #8b6b4b;
+            overflow: hidden;
+        }
+
+        .photo-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .photo-upload-label {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(139, 77, 60, 0.9);
+            color: #fffdf9;
+            border-radius: 999px;
+            padding: 2px 6px;
+            font-size: 9px;
+            cursor: pointer;
+        }
+
+        .photo-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin-top: 2px;
+        }
+
+        .photo-meta input {
+            width: 100%;
+            padding: 4px 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(140, 110, 80, 0.4);
+            font-size: 9px;
+            outline: none;
+        }
+
+        .photo-meta textarea {
+            width: 100%;
+            padding: 4px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(140, 110, 80, 0.35);
+            font-size: 9px;
+            resize: none;
+            outline: none;
+            min-height: 28px;
+        }
+
+        .photo-input {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            .book {
+                width: 90vw;
+                height: 70vh;
+            }
+
+            .page {
+                padding: 22px 18px 18px 48px;
+            }
+
+            .page-title {
+                font-size: 16px;
+            }
+
+            .page-text {
+                font-size: 12px;
+            }
+
+            .photo-area {
+                height: 64px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" style="position:fixed; top:10px; right:10px; z-index:9999; 
+  background:#8b4d3c; color:#fff; padding:6px 10px; border-radius:999px; 
+  font-size:12px; text-decoration:none;">
+   ↩
+</a>
+
+    <!-- PASSWORD OVERLAY -->
+    <div id="protect-overlay">
+        <div id="protect-box">
+            <div id="protect-title">Private Memory Book</div>
+            <div id="protect-subtitle">For our eyes only. Please enter our password.</div>
+            <input type="password" id="protect-input" placeholder="Password">
+            <button id="protect-button">Enter our memories</button>
+            <div id="protect-error"></div>
+        </div>
+    </div>
+
+    <!-- BOOK -->
+    <div class="book-container" id="bookContainer">
+        <div class="book-shadow"></div>
+        <div class="book" id="book">
+            <!-- PAGE 1: COVER -->
+            <div class="page cover">
+                <div class="cover-inner">
+                    <div class="cover-title">Our Memory Book</div>
+                    <div class="cover-year">2026</div>
+                    <div class="cover-divider"></div>
+                    <div class="cover-subtitle">
+                        12 months, 36 pages, and our favorite moments.
+                    </div>
+                    <div class="cover-names">
+                        Just us, and our story.
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE 2: INDEX OF MONTHS -->
+            <div class="page">
+                <div class="page-content">
+                    <div class="page-header">
+                        <span class="label">Index</span>
+                        <span class="value">Months · 2026</span>
+                    </div>
+                    <div class="page-title">Where our memories live</div>
+                    <div class="page-text">
+Tap a month to open its first page.
+No rules, just moments you want to keep.
+                    </div>
+                    <div class="months-grid">
+                        <button class="month-pill" onclick="goToPage(21)">January</button>
+                        <button class="month-pill" onclick="goToPage(24)">February</button>
+                        <button class="month-pill" onclick="goToPage(27)">March</button>
+                        <button class="month-pill" onclick="goToPage(30)">April</button>
+                        <button class="month-pill" onclick="goToPage(33)">May</button>
+                        <button class="month-pill" onclick="goToPage(36)">June</button>
+                        <button class="month-pill" onclick="goToPage(3)">July</button>
+                        <button class="month-pill" onclick="goToPage(6)">August</button>
+                        <button class="month-pill" onclick="goToPage(9)">September</button>
+                        <button class="month-pill" onclick="goToPage(12)">October</button>
+                        <button class="month-pill" onclick="goToPage(15)">November</button>
+                        <button class="month-pill" onclick="goToPage(18)">December</button>
+                    </div>
+                    <div class="footer-note">
+                        Page 2 · Months index
+                    </div>
+                </div>
+            </div>
+
+           
+
+           <!-- JULY · Page 1 (Page 21) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">July · Page 1</div>
+      <div class="page-subtitle">July · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="july-page-1">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Jul1-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Jul1-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Jul1-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Jul1-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Jul1-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Jul1-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Jul1-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Jul1-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Jul1-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveJulyPage1()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 21 · July
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+<!-- JULY · Page 2 (Page 22) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">July · Page 2</div>
+      <div class="page-subtitle">July · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="july-page-2">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Jul2-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Jul2-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Jul2-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Jul2-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Jul2-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Jul2-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Jul2-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Jul2-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Jul2-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveJulyPage2()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 22 · July
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+           
+            <!-- JULY · Page 3 (Page 23) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">July · Page 3</div>
+      <div class="page-subtitle">July · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="july-page-3">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Jul3-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Jul3-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Jul3-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Jul3-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Jul3-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Jul3-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Jul3-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Jul3-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Jul3-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveJulyPage3()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 23 · July
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+           <!-- AUGUST · Page 1 (Page 24) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">August · Page 1</div>
+      <div class="page-subtitle">August · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="august-page-1">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Aug1-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Aug1-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Aug1-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Aug1-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Aug1-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Aug1-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Aug1-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Aug1-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Aug1-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveAugustPage1()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 24 · August
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+            <!-- AUGUST · Page 2 (Page 25) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">August · Page 2</div>
+      <div class="page-subtitle">August · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="august-page-2">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Aug2-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Aug2-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Aug2-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Aug2-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Aug2-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Aug2-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Aug2-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Aug2-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Aug2-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveAugustPage2()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 25 · August
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+          <!-- AUGUST · Page 3 (Page 26) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">August · Page 3</div>
+      <div class="page-subtitle">August · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="august-page-3">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Aug3-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Aug3-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Aug3-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Aug3-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Aug3-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Aug3-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Aug3-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Aug3-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Aug3-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveAugustPage3()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 26 · August
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+           <!-- SEPTEMBER · Page 1 (Page 27) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">September · Page 1</div>
+      <div class="page-subtitle">September · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="september-page-1">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Sep1-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Sep1-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Sep1-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Sep1-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Sep1-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Sep1-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Sep1-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Sep1-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Sep1-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveSeptemberPage1()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 27 · September
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+           <!-- SEPTEMBER · Page 2 (Page 28) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">September · Page 2</div>
+      <div class="page-subtitle">September · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="september-page-2">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Sep2-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Sep2-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Sep2-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Sep2-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Sep2-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Sep2-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Sep2-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Sep2-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Sep2-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveSeptemberPage2()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 28 · September
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+           <!-- SEPTEMBER · Page 3 (Page 29) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">September · Page 3</div>
+      <div class="page-subtitle">September · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="september-page-3">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Sep3-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Sep3-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Sep3-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Sep3-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Sep3-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Sep3-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Sep3-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Sep3-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Sep3-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveSeptemberPage3()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 29 · September
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+          <!-- OCTOBER · Page 1 (Page 30) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">October · Page 1</div>
+      <div class="page-subtitle">October · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="october-page-1">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Oct1-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Oct1-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Oct1-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Oct1-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Oct1-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Oct1-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Oct1-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Oct1-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Oct1-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveOctoberPage1()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 30 · October
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+           <!-- OCTOBER · Page 2 (Page 31) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">October · Page 2</div>
+      <div class="page-subtitle">October · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="october-page-2">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Oct2-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Oct2-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Oct2-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Oct2-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Oct2-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Oct2-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Oct2-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Oct2-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Oct2-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveOctoberPage2()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 31 · October
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+           <!-- OCTOBER · Page 3 (Page 32) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">October · Page 3</div>
+      <div class="page-subtitle">October · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="october-page-3">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Oct3-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Oct3-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Oct3-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Oct3-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Oct3-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Oct3-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Oct3-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Oct3-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Oct3-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveOctoberPage3()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 32 · October
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+          <!-- NOVEMBER · Page 1 (Page 33) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">November · Page 1</div>
+      <div class="page-subtitle">November · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="november-page-1">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Nov1-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Nov1-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Nov1-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Nov1-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Nov1-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Nov1-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Nov1-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Nov1-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Nov1-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveNovemberPage1()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 33 · November
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+           <!-- NOVEMBER · Page 2 (Page 34) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">November · Page 2</div>
+      <div class="page-subtitle">November · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="november-page-2">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Nov2-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Nov2-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Nov2-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Nov2-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Nov2-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Nov2-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Nov2-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Nov2-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Nov2-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveNovemberPage2()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 34 · November
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+          <!-- NOVEMBER · Page 3 (Page 35) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">November · Page 3</div>
+      <div class="page-subtitle">November · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="november-page-3">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Nov3-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Nov3-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Nov3-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Nov3-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Nov3-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Nov3-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Nov3-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Nov3-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Nov3-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveNovemberPage3()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 35 · November
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+           <!-- DECEMBER · Page 1 (Page 36) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">December · Page 1</div>
+      <div class="page-subtitle">December · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="december-page-1">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Dec1-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Dec1-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Dec1-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Dec1-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Dec1-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Dec1-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Dec1-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Dec1-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Dec1-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveDecemberPage1()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 36 · December
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+
+           <!-- DECEMBER · Page 2 (Page 37) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">December · Page 2</div>
+      <div class="page-subtitle">December · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="december-page-2">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Dec2-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Dec2-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Dec2-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Dec2-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Dec2-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Dec2-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Dec2-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Dec2-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Dec2-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveDecemberPage2()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 37 · December
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+           <!-- DECEMBER · Page 3 (Page 38) -->
+<div class="page">
+  <div class="page-content">
+
+    <div class="page-header">
+      <div class="page-main-title">December · Page 3</div>
+      <div class="page-subtitle">December · 2026</div>
+    </div>
+
+    <div class="photos-grid" id="december-page-3">
+
+      <!-- box 1 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 1</span>
+          <img alt="Preview Dec3-1">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 2 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 2</span>
+          <img alt="Preview Dec3-2">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 3 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 3</span>
+          <img alt="Preview Dec3-3">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 4 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 4</span>
+          <img alt="Preview Dec3-4">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 5 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 5</span>
+          <img alt="Preview Dec3-5">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 6 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 6</span>
+          <img alt="Preview Dec3-6">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 7 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 7</span>
+          <img alt="Preview Dec3-7">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 8 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 8</span>
+          <img alt="Preview Dec3-8">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+      <!-- box 9 -->
+      <div class="photo-box">
+        <div class="photo-area">
+          <span>Photo 9</span>
+          <img alt="Preview Dec3-9">
+        </div>
+        <div class="photo-meta">
+          <input type="text" placeholder="Date">
+          <input type="text" class="photo-url-input" placeholder="Image URL (https://...)">
+          <textarea placeholder="A few words..."></textarea>
+        </div>
+      </div>
+
+    </div> <!-- إغلاق photos-grid -->
+
+    <div class="page-save-wrap">
+      <button class="page-save-button" onclick="saveDecemberPage3()">
+        Save
+      </button>
+    </div>
+
+    <div class="footer-note">
+      Page 38 · December
+    </div>
+
+  </div> <!-- إغلاق page-content -->
+</div> <!-- إغلاق page -->
+
+            <!-- بعد آخر صفحة December · Page 3 (Page 38) ضلل السكربت التالي وألصقه مرة واحدة فقط -->
+
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn">&larr; Previous</button>
+        <button class="btn" id="indexBtn">Back to index</button>
+        <button class="btn" id="nextBtn">Next &rarr;</button>
+    </div>
+    <div class="page-indicator" id="pageIndicator"></div>
+
+    <script>
+      const CORRECT_PASSWORD = "2026love";
+
+      const overlay       = document.getElementById('protect-overlay');
+      const protectInput  = document.getElementById('protect-input');
+      const protectButton = document.getElementById('protect-button');
+      const protectError  = document.getElementById('protect-error');
+      const bookContainer = document.getElementById('bookContainer');
+
+      function unlockBook() {
+        overlay.style.display = 'none';
+        bookContainer.style.display = 'block';
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        const alreadyUnlocked = localStorage.getItem('memoryBookUnlocked');
+        if (alreadyUnlocked === 'true') {
+          unlockBook();
+        }
+      });
+
+      protectButton.addEventListener('click', () => {
+        const val = protectInput.value.trim();
+        if (val === CORRECT_PASSWORD) {
+          localStorage.setItem('memoryBookUnlocked', 'true');
+          unlockBook();
+        } else {
+          protectError.textContent = "Wrong password, try again.";
+        }
+      });
+
+        protectInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                protectButton.click();
+            }
+        });
+
+        // FLIP BOOK LOGIC
+        const pages = Array.from(document.querySelectorAll('.book .page'));
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const indexBtn = document.getElementById('indexBtn');
+        const pageIndicator = document.getElementById('pageIndicator');
+
+        let currentPage = 1;
+
+        pages.forEach((p, i) => {
+            p.style.zIndex = (pages.length - i).toString();
+        });
+
+        function updateButtons() {
+            pageIndicator.textContent = `Page ${currentPage} of ${pages.length}`;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === pages.length;
+        }
+
+        function showPage(target) {
+            if (target < 1 || target > pages.length) return;
+            pages.forEach((p, i) => {
+                p.classList.toggle('flipped', i < target - 1);
+            });
+            currentPage = target;
+            updateButtons();
+        }
+
+        function goNext() {
+            if (currentPage < pages.length) {
+                showPage(currentPage + 1);
+            }
+        }
+
+        function goPrev() {
+            if (currentPage > 1) {
+                showPage(currentPage - 1);
+            }
+        }
+
+        function goToPage(n) {
+            showPage(n);
+        }
+
+        nextBtn.addEventListener('click', goNext);
+        prevBtn.addEventListener('click', goPrev);
+        indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
+
+        updateButtons();
+
+        // IMAGE PREVIEW FOR ALL PHOTO BOXES
+        const photoInputs = document.querySelectorAll('.photo-input');
+
+        photoInputs.forEach(input => {
+            input.addEventListener('change', function () {
+                const file = this.files && this.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                const photoArea = this.closest('.photo-area');
+                const img = photoArea.querySelector('img');
+                const labelSpan = photoArea.querySelector('span');
+
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    if (labelSpan) {
+                        labelSpan.style.display = 'none';
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            });
+        });
+        
+      </script> 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAYsv2pPno7fILNMoPX-YYfGB_7XpEOyRM",
+    authDomain: "photo-diary2.firebaseapp.com",
+    projectId: "photo-diary2",
+    storageBucket: "photo-diary2.firebasestorage.app",
+    messagingSenderId: "64056753626",
+    appId: "1:64056753626:web:32d654e82fbaf6ea3dd4e3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // دالة عامة لتحميل صفحة (أي Grid صور)
+  async function loadPage(pageId, gridSelector) {
+    const ref  = doc(db, 'pages', pageId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
+
+    const data = snap.data();
+    const grid = document.querySelector(gridSelector);
+    if (!grid) return;
+
+    const boxes = grid.querySelectorAll('.photo-box');
+    boxes.forEach((box, index) => {
+      const i = index + 1;
+
+      const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
+      const urlInput  = box.querySelector('.photo-url-input');
+      const textArea  = box.querySelector('textarea');
+      const img       = box.querySelector('img');
+      const span      = box.querySelector('.photo-area span');
+
+      if (dateInput) dateInput.value = data[`photo${i}Date`] || '';
+      if (textArea)  textArea.value  = data[`photo${i}Text`]  || '';
+
+      const url = data[`photo${i}Url`] || '';
+      if (urlInput) urlInput.value = url;
+
+      if (img) {
+        if (url) {
+          img.src = url;
+          img.style.display = 'block';
+          if (span) span.style.display = 'none';   // اخفي "Photo X"
+        } else {
+          img.src = '';
+          img.style.display = 'none';
+          if (span) span.style.display = 'block';  // رجّع النص لو ما في صورة
+        }
+      }
+    });
+  }  // ← إغلاق loadPage
+
+  // دالة عامة لحفظ أي صفحة
+  async function savePage(pageId, gridSelector, label) {
+    const grid = document.querySelector(gridSelector);
+    if (!grid) return;
+
+    const boxes   = grid.querySelectorAll('.photo-box');
+    const payload = {};
+
+    boxes.forEach((box, index) => {
+      const i         = index + 1;
+      const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
+      const urlInput  = box.querySelector('.photo-url-input');
+      const textArea  = box.querySelector('textarea');
+
+      payload[`photo${i}Date`] = dateInput?.value || '';
+      payload[`photo${i}Text`] = textArea?.value  || '';
+      payload[`photo${i}Url`]  = urlInput?.value  || '';
+    });
+
+    await setDoc(doc(db, 'pages', pageId), payload, { merge: true });
+    alert(`تم حفظ ${label} ✅`);
+  }
+
+  // تحميل صفحات July–December عند فتح الصفحة
+  window.addEventListener('DOMContentLoaded', () => {
+    // July
+    loadPage('july-page-1', '#july-page-1');
+    loadPage('july-page-2', '#july-page-2');
+    loadPage('july-page-3', '#july-page-3');
+
+    // August
+    loadPage('august-page-1', '#august-page-1');
+    loadPage('august-page-2', '#august-page-2');
+    loadPage('august-page-3', '#august-page-3');
+
+    // September
+    loadPage('september-page-1', '#september-page-1');
+    loadPage('september-page-2', '#september-page-2');
+    loadPage('september-page-3', '#september-page-3');
+
+    // October
+    loadPage('october-page-1', '#october-page-1');
+    loadPage('october-page-2', '#october-page-2');
+    loadPage('october-page-3', '#october-page-3');
+
+    // November
+    loadPage('november-page-1', '#november-page-1');
+    loadPage('november-page-2', '#november-page-2');
+    loadPage('november-page-3', '#november-page-3');
+
+    // December
+    loadPage('december-page-1', '#december-page-1');
+    loadPage('december-page-2', '#december-page-2');
+    loadPage('december-page-3', '#december-page-3');
+  });
+
+  // دوال الحفظ اللي بتناديها أزرار Save في q2.html
+
+  // July
+  window.saveJulyPage1 = () => savePage('july-page-1', '#july-page-1', 'July · Page 1');
+  window.saveJulyPage2 = () => savePage('july-page-2', '#july-page-2', 'July · Page 2');
+  window.saveJulyPage3 = () => savePage('july-page-3', '#july-page-3', 'July · Page 3');
+
+  // August
+  window.saveAugustPage1 = () => savePage('august-page-1', '#august-page-1', 'August · Page 1');
+  window.saveAugustPage2 = () => savePage('august-page-2', '#august-page-2', 'August · Page 2');
+  window.saveAugustPage3 = () => savePage('august-page-3', '#august-page-3', 'August · Page 3');
+
+  // September
+  window.saveSeptemberPage1 = () => savePage('september-page-1', '#september-page-1', 'September · Page 1');
+  window.saveSeptemberPage2 = () => savePage('september-page-2', '#september-page-2', 'September · Page 2');
+  window.saveSeptemberPage3 = () => savePage('september-page-3', '#september-page-3', 'September · Page 3');
+
+  // October
+  window.saveOctoberPage1 = () => savePage('october-page-1', '#october-page-1', 'October · Page 1');
+  window.saveOctoberPage2 = () => savePage('october-page-2', '#october-page-2', 'October · Page 2');
+  window.saveOctoberPage3 = () => savePage('october-page-3', '#october-page-3', 'October · Page 3');
+
+  // November
+  window.saveNovemberPage1 = () => savePage('november-page-1', '#november-page-1', 'November · Page 1');
+  window.saveNovemberPage2 = () => savePage('november-page-2', '#november-page-2', 'November · Page 2');
+  window.saveNovemberPage3 = () => savePage('november-page-3', '#november-page-3', 'November · Page 3');
+
+  // December
+  window.saveDecemberPage1 = () => savePage('december-page-1', '#december-page-1', 'December · Page 1');
+  window.saveDecemberPage2 = () => savePage('december-page-2', '#december-page-2', 'December · Page 2');
+  window.saveDecemberPage3 = () => savePage('december-page-3', '#december-page-3', 'December · Page 3');
+</script>
+
+
+</body>
+</html>
