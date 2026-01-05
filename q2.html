@@ -519,18 +519,18 @@ Tap a month to open its first page.
 No rules, just moments you want to keep.
                     </div>
                     <div class="months-grid">
-                        <button class="month-pill" onclick="goToPage(21)">January</button>
-                        <button class="month-pill" onclick="goToPage(24)">February</button>
-                        <button class="month-pill" onclick="goToPage(27)">March</button>
-                        <button class="month-pill" onclick="goToPage(30)">April</button>
-                        <button class="month-pill" onclick="goToPage(33)">May</button>
-                        <button class="month-pill" onclick="goToPage(36)">June</button>
-                        <button class="month-pill" onclick="goToPage(3)">July</button>
-                        <button class="month-pill" onclick="goToPage(6)">August</button>
-                        <button class="month-pill" onclick="goToPage(9)">September</button>
-                        <button class="month-pill" onclick="goToPage(12)">October</button>
-                        <button class="month-pill" onclick="goToPage(15)">November</button>
-                        <button class="month-pill" onclick="goToPage(18)">December</button>
+                        <button class="month-pill" onclick="goToPage(3)">January</button>
+                        <button class="month-pill" onclick="goToPage(6)">February</button>
+                        <button class="month-pill" onclick="goToPage(9)">March</button>
+                        <button class="month-pill" onclick="goToPage(12)">April</button>
+                        <button class="month-pill" onclick="goToPage(15)">May</button>
+                        <button class="month-pill" onclick="goToPage(18)">June</button>
+                        <button class="month-pill" onclick="goToPage(21)">July</button>
+                        <button class="month-pill" onclick="goToPage(24)">August</button>
+                        <button class="month-pill" onclick="goToPage(27)">September</button>
+                        <button class="month-pill" onclick="goToPage(30)">October</button>
+                        <button class="month-pill" onclick="goToPage(33)">November</button>
+                        <button class="month-pill" onclick="goToPage(36)">December</button>
                     </div>
                     <div class="footer-note">
                         Page 2 · Months index
@@ -3216,9 +3216,26 @@ No rules, just moments you want to keep.
             showPage(n);
         }
 
-        nextBtn.addEventListener('click', goNext);
+       nextBtn.addEventListener('click', goNext);
         prevBtn.addEventListener('click', goPrev);
         indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
+
+        // التعامل مع الهاش القادم من q1
+        const hash = window.location.hash;
+
+        if (hash === '#july') {
+          goToPage(21);   // July · Page 1
+        } else if (hash === '#august') {
+          goToPage(24);   // August · Page 1
+        } else if (hash === '#september') {
+          goToPage(27);   // September · Page 1
+        } else if (hash === '#october') {
+          goToPage(30);   // October · Page 1
+        } else if (hash === '#november') {
+          goToPage(33);   // November · Page 1
+        } else if (hash === '#december') {
+          goToPage(36);   // December · Page 1
+        }
 
         updateButtons();
 
