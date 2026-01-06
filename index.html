@@ -3254,78 +3254,76 @@ if (hash === '#january') {
 
 updateButtons();
 
-        // IMAGE PREVIEW FOR ALL PHOTO BOXES
-        const photoInputs = document.querySelectorAll('.photo-input');
+   
+  // IMAGE PREVIEW FOR ALL PHOTO BOXES
+  const photoInputs = document.querySelectorAll('.photo-input');
 
-               photoInputs.forEach(input => {
-            input.addEventListener('change', function () {
-                const file = this.files && this.files[0];
-                if (!file) return;
+  photoInputs.forEach(input => {
+    input.addEventListener('change', function () {
+      const file = this.files && this.files[0];
+      if (!file) return;
 
-                const reader = new FileReader();
-                const photoArea = this.closest('.photo-area');
-                const img = photoArea.querySelector('img');
-                const labelSpan = photoArea.querySelector('span');
+      const reader = new FileReader();
+      const photoArea = this.closest('.photo-area');
+      const img = photoArea.querySelector('img');
+      const labelSpan = photoArea.querySelector('span');
 
-                reader.onload = function (e) {
-                    img.src = e.target.result;
-                    img.style.display = 'block';
-                    if (labelSpan) {
-                        labelSpan.style.display = 'none';
-                    }
-                };
-
-                reader.readAsDataURL(file);
-            });
-        });
-
-
-// ==== إظهار/إخفاء زر الحفظ حسب الكتابة ==== 
-<!-- ==== إظهار/إخفاء زر الحفظ حسب التغيير + حفظ عند Enter ==== -->
-<script>
-function setupSaveVisibility(pageId, gridSelector, saveFn) {
-  const container = document.getElementById(pageId);
-  if (!container) return;
-
-  const saveButton = container.parentElement.querySelector('.page-save-button');
-  if (!saveButton) return;
-
-  const fields = container.querySelectorAll('input, textarea');
-
-  function updateVisibility() {
-    const changed = hasPageChanged(pageId, gridSelector);
-    if (changed) {
-      saveButton.classList.add('show');      // يبين لما في تغيير
-    } else {
-      saveButton.classList.remove('show');   // يختفي لما يرجع زي الأصل
-    }
-  }
-
-  fields.forEach(f => {
-    // أي تعديل في الحقول
-    f.addEventListener('input', updateVisibility);
-
-    // حفظ عند Enter (بدون Shift)
-    f.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (hasPageChanged(pageId, gridSelector)) {
-          saveFn();      // دالة الحفظ الخاصة بهاي الصفحة
+      reader.onload = function (e) {
+        img.src = e.target.result;
+        img.style.display = 'block';
+        if (labelSpan) {
+          labelSpan.style.display = 'none';
         }
-      }
+      };
+
+      reader.readAsDataURL(file);
     });
   });
 
-  // أول مرة بعد تحميل الصفحة
-  updateVisibility();
-}
+  // ==== إظهار/إخفاء زر الحفظ حسب التغيير + حفظ عند Enter ====
+  function setupSaveVisibility(pageId, gridSelector, saveFn) {
+    const container = document.getElementById(pageId);
+    if (!container) return;
 
-// حالياً نطبقها فقط على January · Page 1
-document.addEventListener('DOMContentLoaded', () => {
-  setupSaveVisibility('january-page-1', '#january-page-1', () => {
-    saveJanuaryPage1();
+    const saveButton = container.parentElement.querySelector('.page-save-button');
+    if (!saveButton) return;
+
+    const fields = container.querySelectorAll('input, textarea');
+
+    function updateVisibility() {
+      const changed = hasPageChanged(pageId, gridSelector);
+      if (changed) {
+        saveButton.classList.add('show');      // يبين لما في تغيير
+      } else {
+        saveButton.classList.remove('show');   // يختفي لما يرجع زي الأصل
+      }
+    }
+
+    fields.forEach(f => {
+      // أي تعديل في الحقول
+      f.addEventListener('input', updateVisibility);
+
+      // حفظ عند Enter (بدون Shift)
+      f.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          if (hasPageChanged(pageId, gridSelector)) {
+            saveFn();      // دالة الحفظ الخاصة بهاي الصفحة
+          }
+        }
+      });
+    });
+
+    // أول مرة بعد تحميل الصفحة
+    updateVisibility();
+  }
+
+  // حالياً نطبقها فقط على January · Page 1
+  document.addEventListener('DOMContentLoaded', () => {
+    setupSaveVisibility('january-page-1', '#january-page-1', () => {
+      saveJanuaryPage1();
+    });
   });
-});
 </script>
 
 <script type="module">
@@ -3343,22 +3341,84 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
-const originalPages = {};
+  const originalPages = {};
 
   // دالة عامة لتحميل صفحة (أي Grid صور)
- async function loadPage(pageId, gridSelector) {
-  const ref  = doc(db, 'pages', pageId);
-  const snap = await getDoc(ref);
-  const grid = document.querySelector(gridSelector);
-  if (!grid) return;
+  async function loadPage(pageId, gridSelector) {
+    const ref  = doc(db, 'pages', pageId);
+    const snap = await getDoc(ref);
+    const grid = document.querySelector(gridSelector);
+    if (!grid) return;
 
-  const boxes = grid.querySelectorAll('.photo-box');
+    const boxes = grid.querySelectorAll('.photo-box');
 
-  // كائن لتخزين النسخة الأصلية
-  const original = {};
+    // كائن لتخزين النسخة الأصلية
+    const original = {};
 
-  if (snap.exists()) {
-    const data = snap.data();
+    if (snap.exists()) {
+      const data = snap.data();
+
+      boxes.forEach((box, index) => {
+        const i = index + 1;
+
+        const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
+        const urlInput  = box.querySelector('.photo-url-input');
+        const textArea  = box.querySelector('textarea');
+        const img       = box.querySelector('img');
+        const span      = box.querySelector('.photo-area span');
+
+        const dateKey = `photo${i}Date`;
+        const textKey = `photo${i}Text`;
+        const urlKey  = `photo${i}Url`;
+
+        const dateVal = data[dateKey] || '';
+        const textVal = data[textKey] || '';
+        const urlVal  = data[urlKey]  || '';
+
+        // تعبئة الحقول
+        if (dateInput) dateInput.value = dateVal;
+        if (textArea)  textArea.value  = textVal;
+        if (urlInput)  urlInput.value  = urlVal;
+
+        // الصورة
+        if (img) {
+          if (urlVal) {
+            img.src = urlVal;
+            img.style.display = 'block';
+            if (span) span.style.display = 'none';
+          } else {
+            img.src = '';
+            img.style.display = 'none';
+            if (span) span.style.display = 'block';
+          }
+        }
+
+        // تخزين الأصل
+        original[dateKey] = dateVal;
+        original[textKey] = textVal;
+        original[urlKey]  = urlVal;
+      });
+    } else {
+      // لو ما في بيانات، نخلي الأصل فاضي
+      boxes.forEach((box, index) => {
+        const i = index + 1;
+        original[`photo${i}Date`] = '';
+        original[`photo${i}Text`] = '';
+        original[`photo${i}Url`]  = '';
+      });
+    }
+
+    // حفظ النسخة الأصلية لهاي الصفحة
+    originalPages[pageId] = original;
+  }
+
+  function hasPageChanged(pageId, gridSelector) {
+    const grid = document.querySelector(gridSelector);
+    const original = originalPages[pageId];
+    if (!grid || !original) return false;
+
+    const boxes = grid.querySelectorAll('.photo-box');
+    let changed = false;
 
     boxes.forEach((box, index) => {
       const i = index + 1;
@@ -3366,87 +3426,24 @@ const originalPages = {};
       const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
       const urlInput  = box.querySelector('.photo-url-input');
       const textArea  = box.querySelector('textarea');
-      const img       = box.querySelector('img');
-      const span      = box.querySelector('.photo-area span');
 
       const dateKey = `photo${i}Date`;
       const textKey = `photo${i}Text`;
       const urlKey  = `photo${i}Url`;
 
-      const dateVal = data[dateKey] || '';
-      const textVal = data[textKey] || '';
-      const urlVal  = data[urlKey]  || '';
+      const currentDate = (dateInput?.value || '').trim();
+      const currentText = (textArea?.value  || '').trim();
+      const currentUrl  = (urlInput?.value  || '').trim();
 
-      // تعبئة الحقول
-      if (dateInput) dateInput.value = dateVal;
-      if (textArea)  textArea.value  = textVal;
-      if (urlInput)  urlInput.value  = urlVal;
-
-      // الصورة
-      if (img) {
-        if (urlVal) {
-          img.src = urlVal;
-          img.style.display = 'block';
-          if (span) span.style.display = 'none';
-        } else {
-          img.src = '';
-          img.style.display = 'none';
-          if (span) span.style.display = 'block';
-        }
+      if (currentDate !== (original[dateKey] || '').trim() ||
+          currentText !== (original[textKey] || '').trim() ||
+          currentUrl  !== (original[urlKey]  || '').trim()) {
+        changed = true;
       }
+    });
 
-      // تخزين الأصل
-      original[dateKey] = dateVal;
-      original[textKey] = textVal;
-      original[urlKey]  = urlVal;
-    });
-  } else {
-    // لو ما في بيانات، نخلي الأصل فاضي
-    boxes.forEach((box, index) => {
-      const i = index + 1;
-      original[`photo${i}Date`] = '';
-      original[`photo${i}Text`] = '';
-      original[`photo${i}Url`]  = '';
-    });
+    return changed;
   }
-
-  // حفظ النسخة الأصلية لهاي الصفحة
-  originalPages[pageId] = original;
-}
- function hasPageChanged(pageId, gridSelector) {
-  const grid = document.querySelector(gridSelector);
-  const original = originalPages[pageId];
-  if (!grid || !original) return false;
-
-  const boxes = grid.querySelectorAll('.photo-box');
-  let changed = false;
-
-  boxes.forEach((box, index) => {
-    const i = index + 1;
-
-    const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
-    const urlInput  = box.querySelector('.photo-url-input');
-    const textArea  = box.querySelector('textarea');
-
-    const dateKey = `photo${i}Date`;
-    const textKey = `photo${i}Text`;
-    const urlKey  = `photo${i}Url`;
-
-    const currentDate = (dateInput?.value || '').trim();
-    const currentText = (textArea?.value  || '').trim();
-    const currentUrl  = (urlInput?.value  || '').trim();
-
-    if (currentDate !== (original[dateKey] || '').trim() ||
-        currentText !== (original[textKey] || '').trim() ||
-        currentUrl  !== (original[urlKey]  || '').trim()) {
-      changed = true;
-    }
-  });
-
-  return changed;
-}
-   
-
 
   // دالة عامة لحفظ صفحة
   async function savePage(pageId, gridSelector, label) {
@@ -3537,7 +3534,6 @@ const originalPages = {};
   window.saveJunePage2 = () => savePage('june-page-2', '#june-page-2', 'June · Page 2');
   window.saveJunePage3 = () => savePage('june-page-3', '#june-page-3', 'June · Page 3');
 </script>
-
 
 </body>
 </html>
