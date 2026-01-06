@@ -3276,9 +3276,9 @@ No rules, just moments you want to keep.
     });
   });
 
-  // ===== منطق زر الحفظ لـ January Page 1 فقط =====
-  function setupJan1SaveVisibility() {
-    const container  = document.getElementById('january-page-1');
+  // ===== منطق زر الحفظ لكل الصفحات (January–June) =====
+  function setupPageSaveVisibility(pageId, gridSelector, saveFn) {
+    const container  = document.getElementById(pageId);
     if (!container) return;
 
     const saveButton = container.parentElement.querySelector('.page-save-button');
@@ -3287,29 +3287,34 @@ No rules, just moments you want to keep.
     const fields = container.querySelectorAll('input, textarea');
 
     function updateVisibility() {
-      // نقارن القيم الحالية مع الأصل من originalPages
-      if (!window.originalPages || !window.originalPages['january-page-1']) {
-        // لو الأصل مش جاهز لسه، نخلي الزر مخفي
+      if (!window.originalPages || !window.originalPages[pageId]) {
         saveButton.classList.remove('show');
         return;
       }
 
-      const original = window.originalPages['january-page-1'];
+      const original = window.originalPages[pageId];
       let changed = false;
 
-      fields.forEach((f, index) => {
-        const boxIndex = Math.floor(index / 3) + 1; // كل 3 حقول = تاريخ/نص/URL لصورة
-        const typeIndex = index % 3; // 0 = تاريخ، 1 = URL، 2 = نص
+      // نقارن على مستوى كل photo-box بقيم original
+      const boxes = container.querySelectorAll('.photo-box');
+      boxes.forEach((box, index) => {
+        const i = index + 1;
 
-        let key;
-        if (typeIndex === 0) key = `photo${boxIndex}Date`;
-        else if (typeIndex === 1) key = `photo${boxIndex}Url`;
-        else key = `photo${boxIndex}Text`;
+        const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
+        const urlInput  = box.querySelector('.photo-url-input');
+        const textArea  = box.querySelector('textarea');
 
-        const current  = (f.value || '').trim();
-        const originalVal = (original[key] || '').trim();
+        const dateKey = `photo${i}Date`;
+        const textKey = `photo${i}Text`;
+        const urlKey  = `photo${i}Url`;
 
-        if (current !== originalVal) {
+        const currentDate = (dateInput?.value || '').trim();
+        const currentText = (textArea?.value  || '').trim();
+        const currentUrl  = (urlInput?.value  || '').trim();
+
+        if (currentDate !== (original[dateKey] || '').trim() ||
+            currentText !== (original[textKey] || '').trim() ||
+            currentUrl  !== (original[urlKey]  || '').trim()) {
           changed = true;
         }
       });
@@ -3330,7 +3335,7 @@ No rules, just moments you want to keep.
           e.preventDefault();
           updateVisibility();
           if (saveButton.classList.contains('show')) {
-            saveJanuaryPage1();
+            saveFn();
           }
         }
       });
@@ -3339,8 +3344,8 @@ No rules, just moments you want to keep.
     updateVisibility();
   }
 
-  // سنستدعي setupJan1SaveVisibility بعد أن تم تحميل بيانات JAN1 من Firestore (من سكربت الموديول)
-  window.setupJan1SaveVisibility = setupJan1SaveVisibility;
+  // نجعلها متاحة للموديول
+  window.setupPageSaveVisibility = setupPageSaveVisibility;
 </script>
 
 <script type="module">
@@ -3422,9 +3427,50 @@ No rules, just moments you want to keep.
 
     window.originalPages[pageId] = original;
 
-    // لو هذه هي January Page 1، بعد التحميل نشغّل مراقبة الزر
-    if (pageId === 'january-page-1' && window.setupJan1SaveVisibility) {
-      window.setupJan1SaveVisibility();
+    // بعد تحميل الصفحة، نفعّل مراقبة زر الحفظ لها
+    if (window.setupPageSaveVisibility) {
+      if (pageId === 'january-page-1') {
+        window.setupPageSaveVisibility(pageId, '#january-page-1', () => saveJanuaryPage1());
+      } else if (pageId === 'january-page-2') {
+        window.setupPageSaveVisibility(pageId, '#january-page-2', () => saveJanuaryPage2());
+      } else if (pageId === 'january-page-3') {
+        window.setupPageSaveVisibility(pageId, '#january-page-3', () => saveJanuaryPage3());
+
+      } else if (pageId === 'february-page-1') {
+        window.setupPageSaveVisibility(pageId, '#february-page-1', () => saveFebruaryPage1());
+      } else if (pageId === 'february-page-2') {
+        window.setupPageSaveVisibility(pageId, '#february-page-2', () => saveFebruaryPage2());
+      } else if (pageId === 'february-page-3') {
+        window.setupPageSaveVisibility(pageId, '#february-page-3', () => saveFebruaryPage3());
+
+      } else if (pageId === 'march-page-1') {
+        window.setupPageSaveVisibility(pageId, '#march-page-1', () => saveMarchPage1());
+      } else if (pageId === 'march-page-2') {
+        window.setupPageSaveVisibility(pageId, '#march-page-2', () => saveMarchPage2());
+      } else if (pageId === 'march-page-3') {
+        window.setupPageSaveVisibility(pageId, '#march-page-3', () => saveMarchPage3());
+
+      } else if (pageId === 'april-page-1') {
+        window.setupPageSaveVisibility(pageId, '#april-page-1', () => saveAprilPage1());
+      } else if (pageId === 'april-page-2') {
+        window.setupPageSaveVisibility(pageId, '#april-page-2', () => saveAprilPage2());
+      } else if (pageId === 'april-page-3') {
+        window.setupPageSaveVisibility(pageId, '#april-page-3', () => saveAprilPage3());
+
+      } else if (pageId === 'may-page-1') {
+        window.setupPageSaveVisibility(pageId, '#may-page-1', () => saveMayPage1());
+      } else if (pageId === 'may-page-2') {
+        window.setupPageSaveVisibility(pageId, '#may-page-2', () => saveMayPage2());
+      } else if (pageId === 'may-page-3') {
+        window.setupPageSaveVisibility(pageId, '#may-page-3', () => saveMayPage3());
+
+      } else if (pageId === 'june-page-1') {
+        window.setupPageSaveVisibility(pageId, '#june-page-1', () => saveJunePage1());
+      } else if (pageId === 'june-page-2') {
+        window.setupPageSaveVisibility(pageId, '#june-page-2', () => saveJunePage2());
+      } else if (pageId === 'june-page-3') {
+        window.setupPageSaveVisibility(pageId, '#june-page-3', () => saveJunePage3());
+      }
     }
   }
 
@@ -3450,11 +3496,45 @@ No rules, just moments you want to keep.
     await setDoc(doc(db, 'pages', pageId), payload, { merge: true });
     alert(`تم حفظ ${label} ✅`);
 
-    // بعد الحفظ نحدّث الأصل لـ JAN1 حتى يختفي الزر لو رجعت القيم كما هي
-    if (pageId === 'january-page-1') {
-      window.originalPages[pageId] = { ...payload };
-      if (window.setupJan1SaveVisibility) {
-        window.setupJan1SaveVisibility();
+    // بعد الحفظ نحدث الأصل لهاي الصفحة
+    window.originalPages[pageId] = { ...payload };
+    if (window.setupPageSaveVisibility) {
+      if (pageId === 'january-page-1') {
+        window.setupPageSaveVisibility(pageId, '#january-page-1', () => saveJanuaryPage1());
+      } else if (pageId === 'january-page-2') {
+        window.setupPageSaveVisibility(pageId, '#january-page-2', () => saveJanuaryPage2());
+      } else if (pageId === 'january-page-3') {
+        window.setupPageSaveVisibility(pageId, '#january-page-3', () => saveJanuaryPage3());
+      } else if (pageId === 'february-page-1') {
+        window.setupPageSaveVisibility(pageId, '#february-page-1', () => saveFebruaryPage1());
+      } else if (pageId === 'february-page-2') {
+        window.setupPageSaveVisibility(pageId, '#february-page-2', () => saveFebruaryPage2());
+      } else if (pageId === 'february-page-3') {
+        window.setupPageSaveVisibility(pageId, '#february-page-3', () => saveFebruaryPage3());
+      } else if (pageId === 'march-page-1') {
+        window.setupPageSaveVisibility(pageId, '#march-page-1', () => saveMarchPage1());
+      } else if (pageId === 'march-page-2') {
+        window.setupPageSaveVisibility(pageId, '#march-page-2', () => saveMarchPage2());
+      } else if (pageId === 'march-page-3') {
+        window.setupPageSaveVisibility(pageId, '#march-page-3', () => saveMarchPage3());
+      } else if (pageId === 'april-page-1') {
+        window.setupPageSaveVisibility(pageId, '#april-page-1', () => saveAprilPage1());
+      } else if (pageId === 'april-page-2') {
+        window.setupPageSaveVisibility(pageId, '#april-page-2', () => saveAprilPage2());
+      } else if (pageId === 'april-page-3') {
+        window.setupPageSaveVisibility(pageId, '#april-page-3', () => saveAprilPage3());
+      } else if (pageId === 'may-page-1') {
+        window.setupPageSaveVisibility(pageId, '#may-page-1', () => saveMayPage1());
+      } else if (pageId === 'may-page-2') {
+        window.setupPageSaveVisibility(pageId, '#may-page-2', () => saveMayPage2());
+      } else if (pageId === 'may-page-3') {
+        window.setupPageSaveVisibility(pageId, '#may-page-3', () => saveMayPage3());
+      } else if (pageId === 'june-page-1') {
+        window.setupPageSaveVisibility(pageId, '#june-page-1', () => saveJunePage1());
+      } else if (pageId === 'june-page-2') {
+        window.setupPageSaveVisibility(pageId, '#june-page-2', () => saveJunePage2());
+      } else if (pageId === 'june-page-3') {
+        window.setupPageSaveVisibility(pageId, '#june-page-3', () => saveJunePage3());
       }
     }
   }
