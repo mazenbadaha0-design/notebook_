@@ -3276,71 +3276,76 @@ No rules, just moments you want to keep.
 
          </script> 
 
-<!-- سكربت إظهار/إخفاء زر الحفظ -->
+<!-- سكربت إظهار/إخفاء زر الحفظ + منطق التغيير لكل صفحات q2 -->
 <script>
-function setupSaveVisibility(pageId) {
-  const container = document.getElementById(pageId);
-  if (!container) return;
+  function setupPageSaveVisibilityQ2(pageId, gridSelector, saveFn) {
+    const container  = document.getElementById(pageId);
+    if (!container) return;
 
-  const saveButton = container.parentElement.querySelector('.page-save-button');
-  const fields = container.querySelectorAll('input, textarea');
+    const saveButton = container.parentElement.querySelector('.page-save-button');
+    if (!saveButton) return;
 
-  function updateVisibility() {
-    let hasContent = false;
+    const fields = container.querySelectorAll('input, textarea');
+
+    function updateVisibility() {
+      if (!window.originalPagesQ2 || !window.originalPagesQ2[pageId]) {
+        saveButton.classList.remove('show');
+        return;
+      }
+
+      const original = window.originalPagesQ2[pageId];
+      let changed = false;
+
+      const boxes = container.querySelectorAll('.photo-box');
+      boxes.forEach((box, index) => {
+        const i = index + 1;
+
+        const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
+        const urlInput  = box.querySelector('.photo-url-input');
+        const textArea  = box.querySelector('textarea');
+
+        const dateKey = `photo${i}Date`;
+        const textKey = `photo${i}Text`;
+        const urlKey  = `photo${i}Url`;
+
+        const currentDate = (dateInput?.value || '').trim();
+        const currentText = (textArea?.value  || '').trim();
+        const currentUrl  = (urlInput?.value  || '').trim();
+
+        if (currentDate !== (original[dateKey] || '').trim() ||
+            currentText !== (original[textKey] || '').trim() ||
+            currentUrl  !== (original[urlKey]  || '').trim()) {
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        saveButton.classList.add('show');
+      } else {
+        saveButton.classList.remove('show');
+      }
+    }
 
     fields.forEach(f => {
-      if (f.value.trim() !== '') {
-        hasContent = true;
-      }
+      f.addEventListener('input', updateVisibility);
+
+      f.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          updateVisibility();
+          if (saveButton.classList.contains('show')) {
+            saveFn();
+          }
+        }
+      });
     });
 
-    if (hasContent) {
-      saveButton.classList.add('show');
-    } else {
-      saveButton.classList.remove('show');
-    }
+    updateVisibility();
   }
 
-  fields.forEach(f => {
-    f.addEventListener('input', updateVisibility);
-  });
+  window.setupPageSaveVisibilityQ2 = setupPageSaveVisibilityQ2;
+</script>
 
-  updateVisibility();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  // July
-  setupSaveVisibility('july-page-1');
-  setupSaveVisibility('july-page-2');
-  setupSaveVisibility('july-page-3');
-
-  // August
-  setupSaveVisibility('august-page-1');
-  setupSaveVisibility('august-page-2');
-  setupSaveVisibility('august-page-3');
-
-  // September
-  setupSaveVisibility('september-page-1');
-  setupSaveVisibility('september-page-2');
-  setupSaveVisibility('september-page-3');
-
-  // October
-  setupSaveVisibility('october-page-1');
-  setupSaveVisibility('october-page-2');
-  setupSaveVisibility('october-page-3');
-
-  // November
-  setupSaveVisibility('november-page-1');
-  setupSaveVisibility('november-page-2');
-  setupSaveVisibility('november-page-3');
-
-  // December
-  setupSaveVisibility('december-page-1');
-  setupSaveVisibility('december-page-2');
-  setupSaveVisibility('december-page-3');
-});
-        
-      </script> 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -3357,45 +3362,116 @@ document.addEventListener('DOMContentLoaded', () => {
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
+  // نخزن الأصل لكل صفحة في q2
+  window.originalPagesQ2 = {};
+
   // دالة عامة لتحميل صفحة (أي Grid صور)
   async function loadPage(pageId, gridSelector) {
     const ref  = doc(db, 'pages', pageId);
     const snap = await getDoc(ref);
-    if (!snap.exists()) return;
-
-    const data = snap.data();
     const grid = document.querySelector(gridSelector);
     if (!grid) return;
 
     const boxes = grid.querySelectorAll('.photo-box');
-    boxes.forEach((box, index) => {
-      const i = index + 1;
+    const original = {};
 
-      const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
-      const urlInput  = box.querySelector('.photo-url-input');
-      const textArea  = box.querySelector('textarea');
-      const img       = box.querySelector('img');
-      const span      = box.querySelector('.photo-area span');
+    if (snap.exists()) {
+      const data = snap.data();
 
-      if (dateInput) dateInput.value = data[`photo${i}Date`] || '';
-      if (textArea)  textArea.value  = data[`photo${i}Text`]  || '';
+      boxes.forEach((box, index) => {
+        const i = index + 1;
 
-      const url = data[`photo${i}Url`] || '';
-      if (urlInput) urlInput.value = url;
+        const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
+        const urlInput  = box.querySelector('.photo-url-input');
+        const textArea  = box.querySelector('textarea');
+        const img       = box.querySelector('img');
+        const span      = box.querySelector('.photo-area span');
 
-      if (img) {
-        if (url) {
-          img.src = url;
-          img.style.display = 'block';
-          if (span) span.style.display = 'none';   // اخفي "Photo X"
-        } else {
-          img.src = '';
-          img.style.display = 'none';
-          if (span) span.style.display = 'block';  // رجّع النص لو ما في صورة
+        const dateKey = `photo${i}Date`;
+        const textKey = `photo${i}Text`;
+        const urlKey  = `photo${i}Url`;
+
+        const dateVal = data[dateKey] || '';
+        const textVal = data[textKey] || '';
+        const urlVal  = data[urlKey]  || '';
+
+        if (dateInput) dateInput.value = dateVal;
+        if (textArea)  textArea.value  = textVal;
+        if (urlInput)  urlInput.value  = urlVal;
+
+        if (img) {
+          if (urlVal) {
+            img.src = urlVal;
+            img.style.display = 'block';
+            if (span) span.style.display = 'none';
+          } else {
+            img.src = '';
+            img.style.display = 'none';
+            if (span) span.style.display = 'block';
+          }
         }
+
+        original[dateKey] = dateVal;
+        original[textKey] = textVal;
+        original[urlKey]  = urlVal;
+      });
+    } else {
+      boxes.forEach((box, index) => {
+        const i = index + 1;
+        original[`photo${i}Date`] = '';
+        original[`photo${i}Text`] = '';
+        original[`photo${i}Url`]  = '';
+      });
+    }
+
+    window.originalPagesQ2[pageId] = original;
+
+    // بعد التحميل نفعّل مراقبة الزر لهاي الصفحة
+    if (window.setupPageSaveVisibilityQ2) {
+      if (pageId === 'july-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#july-page-1', () => saveJulyPage1());
+      } else if (pageId === 'july-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#july-page-2', () => saveJulyPage2());
+      } else if (pageId === 'july-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#july-page-3', () => saveJulyPage3());
+
+      } else if (pageId === 'august-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#august-page-1', () => saveAugustPage1());
+      } else if (pageId === 'august-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#august-page-2', () => saveAugustPage2());
+      } else if (pageId === 'august-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#august-page-3', () => saveAugustPage3());
+
+      } else if (pageId === 'september-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#september-page-1', () => saveSeptemberPage1());
+      } else if (pageId === 'september-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#september-page-2', () => saveSeptemberPage2());
+      } else if (pageId === 'september-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#september-page-3', () => saveSeptemberPage3());
+
+      } else if (pageId === 'october-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#october-page-1', () => saveOctoberPage1());
+      } else if (pageId === 'october-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#october-page-2', () => saveOctoberPage2());
+      } else if (pageId === 'october-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#october-page-3', () => saveOctoberPage3());
+
+      } else if (pageId === 'november-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#november-page-1', () => saveNovemberPage1());
+      } else if (pageId === 'november-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#november-page-2', () => saveNovemberPage2());
+      } else if (pageId === 'november-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#november-page-3', () => saveNovemberPage3());
+
+      } else if (pageId === 'december-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#december-page-1', () => saveDecemberPage1());
+      } else if (pageId === 'december-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#december-page-2', () => saveDecemberPage2());
+      } else if (pageId === 'december-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#december-page-3', () => saveDecemberPage3());
       }
-    });
-  }  // ← إغلاق loadPage
+    }
+  }
 
   // دالة عامة لحفظ أي صفحة
   async function savePage(pageId, gridSelector, label) {
@@ -3418,6 +3494,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
     await setDoc(doc(db, 'pages', pageId), payload, { merge: true });
     alert(`تم حفظ ${label} ✅`);
+
+    // بعد الحفظ نحدّث الأصل لهاي الصفحة
+    window.originalPagesQ2[pageId] = { ...payload };
+
+    if (window.setupPageSaveVisibilityQ2) {
+      if (pageId === 'july-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#july-page-1', () => saveJulyPage1());
+      } else if (pageId === 'july-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#july-page-2', () => saveJulyPage2());
+      } else if (pageId === 'july-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#july-page-3', () => saveJulyPage3());
+
+      } else if (pageId === 'august-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#august-page-1', () => saveAugustPage1());
+      } else if (pageId === 'august-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#august-page-2', () => saveAugustPage2());
+      } else if (pageId === 'august-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#august-page-3', () => saveAugustPage3());
+
+      } else if (pageId === 'september-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#september-page-1', () => saveSeptemberPage1());
+      } else if (pageId === 'september-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#september-page-2', () => saveSeptemberPage2());
+      } else if (pageId === 'september-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#september-page-3', () => saveSeptemberPage3());
+
+      } else if (pageId === 'october-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#october-page-1', () => saveOctoberPage1());
+      } else if (pageId === 'october-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#october-page-2', () => saveOctoberPage2());
+      } else if (pageId === 'october-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#october-page-3', () => saveOctoberPage3());
+
+      } else if (pageId === 'november-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#november-page-1', () => saveNovemberPage1());
+      } else if (pageId === 'november-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#november-page-2', () => saveNovemberPage2());
+      } else if (pageId === 'november-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#november-page-3', () => saveNovemberPage3());
+
+      } else if (pageId === 'december-page-1') {
+        window.setupPageSaveVisibilityQ2(pageId, '#december-page-1', () => saveDecemberPage1());
+      } else if (pageId === 'december-page-2') {
+        window.setupPageSaveVisibilityQ2(pageId, '#december-page-2', () => saveDecemberPage2());
+      } else if (pageId === 'december-page-3') {
+        window.setupPageSaveVisibilityQ2(pageId, '#december-page-3', () => saveDecemberPage3());
+      }
+    }
   }
 
   // تحميل صفحات July–December عند فتح الصفحة
