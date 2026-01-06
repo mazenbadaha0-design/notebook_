@@ -3150,114 +3150,110 @@ No rules, just moments you want to keep.
     <div class="page-indicator" id="pageIndicator"></div>
 
 <script>
-      const CORRECT_PASSWORD = "2026love";
+  const CORRECT_PASSWORD = "2026love";
 
-      const overlay       = document.getElementById('protect-overlay');
-      const protectInput  = document.getElementById('protect-input');
-      const protectButton = document.getElementById('protect-button');
-      const protectError  = document.getElementById('protect-error');
-      const bookContainer = document.getElementById('bookContainer');
+  const overlay       = document.getElementById('protect-overlay');
+  const protectInput  = document.getElementById('protect-input');
+  const protectButton = document.getElementById('protect-button');
+  const protectError  = document.getElementById('protect-error');
+  const bookContainer = document.getElementById('bookContainer');
 
-      function unlockBook() {
-        overlay.style.display = 'none';
-        bookContainer.style.display = 'block';
-      }
+  function unlockBook() {
+    overlay.style.display = 'none';
+    bookContainer.style.display = 'block';
+  }
 
-      window.addEventListener('DOMContentLoaded', () => {
-        const alreadyUnlocked = localStorage.getItem('memoryBookUnlocked');
-        if (alreadyUnlocked === 'true') {
-          unlockBook();
-        }
-      });
+  window.addEventListener('DOMContentLoaded', () => {
+    const alreadyUnlocked = localStorage.getItem('memoryBookUnlocked');
+    if (alreadyUnlocked === 'true') {
+      unlockBook();
+    }
+  });
 
-      protectButton.addEventListener('click', () => {
-        const val = protectInput.value.trim();
-        if (val === CORRECT_PASSWORD) {
-          localStorage.setItem('memoryBookUnlocked', 'true');
-          unlockBook();
-        } else {
-          protectError.textContent = "Wrong password, try again.";
-        }
-      });
+  protectButton.addEventListener('click', () => {
+    const val = protectInput.value.trim();
+    if (val === CORRECT_PASSWORD) {
+      localStorage.setItem('memoryBookUnlocked', 'true');
+      unlockBook();
+    } else {
+      protectError.textContent = "Wrong password, try again.";
+    }
+  });
 
+  protectInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      protectButton.click();
+    }
+  });
 
-        protectInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                protectButton.click();
-            }
-        });
+  // FLIP BOOK LOGIC
+  const pages = Array.from(document.querySelectorAll('.book .page'));
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const indexBtn = document.getElementById('indexBtn');
+  const pageIndicator = document.getElementById('pageIndicator');
 
-        // FLIP BOOK LOGIC
-        const pages = Array.from(document.querySelectorAll('.book .page'));
-        const nextBtn = document.getElementById('nextBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const indexBtn = document.getElementById('indexBtn');
-        const pageIndicator = document.getElementById('pageIndicator');
+  let currentPage = 1;
 
-        let currentPage = 1;
+  pages.forEach((p, i) => {
+    p.style.zIndex = (pages.length - i).toString();
+  });
 
-        pages.forEach((p, i) => {
-            p.style.zIndex = (pages.length - i).toString();
-        });
+  function updateButtons() {
+    pageIndicator.textContent = `Page ${currentPage} of ${pages.length}`;
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === pages.length;
+  }
 
-        function updateButtons() {
-            pageIndicator.textContent = `Page ${currentPage} of ${pages.length}`;
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === pages.length;
-        }
+  function showPage(target) {
+    if (target < 1 || target > pages.length) return;
+    pages.forEach((p, i) => {
+      p.classList.toggle('flipped', i < target - 1);
+    });
+    currentPage = target;
+    updateButtons();
+  }
 
-        function showPage(target) {
-            if (target < 1 || target > pages.length) return;
-            pages.forEach((p, i) => {
-                p.classList.toggle('flipped', i < target - 1);
-            });
-            currentPage = target;
-            updateButtons();
-        }
+  function goNext() {
+    if (currentPage < pages.length) {
+      showPage(currentPage + 1);
+    }
+  }
 
-        function goNext() {
-            if (currentPage < pages.length) {
-                showPage(currentPage + 1);
-            }
-        }
+  function goPrev() {
+    if (currentPage > 1) {
+      showPage(currentPage - 1);
+    }
+  }
 
-        function goPrev() {
-            if (currentPage > 1) {
-                showPage(currentPage - 1);
-            }
-        }
+  function goToPage(n) {
+    showPage(n);
+  }
 
-        function goToPage(n) {
-            showPage(n);
-        }
+  nextBtn.addEventListener('click', goNext);
+  prevBtn.addEventListener('click', goPrev);
+  indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
 
-       nextBtn.addEventListener('click', goNext);
-prevBtn.addEventListener('click', goPrev);
-indexBtn.addEventListener('click', () => goToPage(2)); // صفحة الفهرس
+  // التعامل مع الهاش القادم من q2
+  const hash = window.location.hash;
+  if (hash === '#january') {
+    goToPage(3);
+  } else if (hash === '#february') {
+    goToPage(6);
+  } else if (hash === '#march') {
+    goToPage(9);
+  } else if (hash === '#april') {
+    goToPage(12);
+  } else if (hash === '#may') {
+    goToPage(15);
+  } else if (hash === '#june') {
+    goToPage(18);
+  }
 
-// التعامل مع الهاش القادم من q2
-const hash = window.location.hash;
+  updateButtons();
 
-if (hash === '#january') {
-  goToPage(3);   // January · Page 1 في index.html
-} else if (hash === '#february') {
-  goToPage(6);
-} else if (hash === '#march') {
-  goToPage(9);
-} else if (hash === '#april') {
-  goToPage(12);
-} else if (hash === '#may') {
-  goToPage(15);
-} else if (hash === '#june') {
-  goToPage(18);
-}
-
-updateButtons();
-
-   
   // IMAGE PREVIEW FOR ALL PHOTO BOXES
   const photoInputs = document.querySelectorAll('.photo-input');
-
   photoInputs.forEach(input => {
     input.addEventListener('change', function () {
       const file = this.files && this.files[0];
@@ -3280,9 +3276,9 @@ updateButtons();
     });
   });
 
-  // ==== إظهار/إخفاء زر الحفظ حسب التغيير + حفظ عند Enter ====
-  function setupSaveVisibility(pageId, gridSelector, saveFn) {
-    const container = document.getElementById(pageId);
+  // ===== منطق زر الحفظ لـ January Page 1 فقط =====
+  function setupJan1SaveVisibility() {
+    const container  = document.getElementById('january-page-1');
     if (!container) return;
 
     const saveButton = container.parentElement.querySelector('.page-save-button');
@@ -3291,39 +3287,60 @@ updateButtons();
     const fields = container.querySelectorAll('input, textarea');
 
     function updateVisibility() {
-      const changed = hasPageChanged(pageId, gridSelector);
+      // نقارن القيم الحالية مع الأصل من originalPages
+      if (!window.originalPages || !window.originalPages['january-page-1']) {
+        // لو الأصل مش جاهز لسه، نخلي الزر مخفي
+        saveButton.classList.remove('show');
+        return;
+      }
+
+      const original = window.originalPages['january-page-1'];
+      let changed = false;
+
+      fields.forEach((f, index) => {
+        const boxIndex = Math.floor(index / 3) + 1; // كل 3 حقول = تاريخ/نص/URL لصورة
+        const typeIndex = index % 3; // 0 = تاريخ، 1 = URL، 2 = نص
+
+        let key;
+        if (typeIndex === 0) key = `photo${boxIndex}Date`;
+        else if (typeIndex === 1) key = `photo${boxIndex}Url`;
+        else key = `photo${boxIndex}Text`;
+
+        const current  = (f.value || '').trim();
+        const originalVal = (original[key] || '').trim();
+
+        if (current !== originalVal) {
+          changed = true;
+        }
+      });
+
       if (changed) {
-        saveButton.classList.add('show');      // يبين لما في تغيير
+        saveButton.classList.add('show');
       } else {
-        saveButton.classList.remove('show');   // يختفي لما يرجع زي الأصل
+        saveButton.classList.remove('show');
       }
     }
 
+    // مراقبة التغيير + حفظ عند Enter
     fields.forEach(f => {
-      // أي تعديل في الحقول
       f.addEventListener('input', updateVisibility);
 
-      // حفظ عند Enter (بدون Shift)
       f.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          if (hasPageChanged(pageId, gridSelector)) {
-            saveFn();      // دالة الحفظ الخاصة بهاي الصفحة
+          updateVisibility();
+          if (saveButton.classList.contains('show')) {
+            saveJanuaryPage1();
           }
         }
       });
     });
 
-    // أول مرة بعد تحميل الصفحة
     updateVisibility();
   }
 
-  // حالياً نطبقها فقط على January · Page 1
-  document.addEventListener('DOMContentLoaded', () => {
-    setupSaveVisibility('january-page-1', '#january-page-1', () => {
-      saveJanuaryPage1();
-    });
-  });
+  // سنستدعي setupJan1SaveVisibility بعد أن تم تحميل بيانات JAN1 من Firestore (من سكربت الموديول)
+  window.setupJan1SaveVisibility = setupJan1SaveVisibility;
 </script>
 
 <script type="module">
@@ -3341,9 +3358,10 @@ updateButtons();
 
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
-  const originalPages = {};
 
-  // دالة عامة لتحميل صفحة (أي Grid صور)
+  // نخزن الأصل لكل صفحة
+  window.originalPages = {};
+
   async function loadPage(pageId, gridSelector) {
     const ref  = doc(db, 'pages', pageId);
     const snap = await getDoc(ref);
@@ -3351,8 +3369,6 @@ updateButtons();
     if (!grid) return;
 
     const boxes = grid.querySelectorAll('.photo-box');
-
-    // كائن لتخزين النسخة الأصلية
     const original = {};
 
     if (snap.exists()) {
@@ -3375,12 +3391,10 @@ updateButtons();
         const textVal = data[textKey] || '';
         const urlVal  = data[urlKey]  || '';
 
-        // تعبئة الحقول
         if (dateInput) dateInput.value = dateVal;
         if (textArea)  textArea.value  = textVal;
         if (urlInput)  urlInput.value  = urlVal;
 
-        // الصورة
         if (img) {
           if (urlVal) {
             img.src = urlVal;
@@ -3393,13 +3407,11 @@ updateButtons();
           }
         }
 
-        // تخزين الأصل
         original[dateKey] = dateVal;
         original[textKey] = textVal;
         original[urlKey]  = urlVal;
       });
     } else {
-      // لو ما في بيانات، نخلي الأصل فاضي
       boxes.forEach((box, index) => {
         const i = index + 1;
         original[`photo${i}Date`] = '';
@@ -3408,44 +3420,14 @@ updateButtons();
       });
     }
 
-    // حفظ النسخة الأصلية لهاي الصفحة
-    originalPages[pageId] = original;
+    window.originalPages[pageId] = original;
+
+    // لو هذه هي January Page 1، بعد التحميل نشغّل مراقبة الزر
+    if (pageId === 'january-page-1' && window.setupJan1SaveVisibility) {
+      window.setupJan1SaveVisibility();
+    }
   }
 
-  function hasPageChanged(pageId, gridSelector) {
-    const grid = document.querySelector(gridSelector);
-    const original = originalPages[pageId];
-    if (!grid || !original) return false;
-
-    const boxes = grid.querySelectorAll('.photo-box');
-    let changed = false;
-
-    boxes.forEach((box, index) => {
-      const i = index + 1;
-
-      const dateInput = box.querySelector('input[type="text"]:not(.photo-url-input)');
-      const urlInput  = box.querySelector('.photo-url-input');
-      const textArea  = box.querySelector('textarea');
-
-      const dateKey = `photo${i}Date`;
-      const textKey = `photo${i}Text`;
-      const urlKey  = `photo${i}Url`;
-
-      const currentDate = (dateInput?.value || '').trim();
-      const currentText = (textArea?.value  || '').trim();
-      const currentUrl  = (urlInput?.value  || '').trim();
-
-      if (currentDate !== (original[dateKey] || '').trim() ||
-          currentText !== (original[textKey] || '').trim() ||
-          currentUrl  !== (original[urlKey]  || '').trim()) {
-        changed = true;
-      }
-    });
-
-    return changed;
-  }
-
-  // دالة عامة لحفظ صفحة
   async function savePage(pageId, gridSelector, label) {
     const grid = document.querySelector(gridSelector);
     if (!grid) return;
@@ -3467,69 +3449,64 @@ updateButtons();
 
     await setDoc(doc(db, 'pages', pageId), payload, { merge: true });
     alert(`تم حفظ ${label} ✅`);
+
+    // بعد الحفظ نحدّث الأصل لـ JAN1 حتى يختفي الزر لو رجعت القيم كما هي
+    if (pageId === 'january-page-1') {
+      window.originalPages[pageId] = { ...payload };
+      if (window.setupJan1SaveVisibility) {
+        window.setupJan1SaveVisibility();
+      }
+    }
   }
 
-  // تحميل كل الصفحات أول ما تفتح الصفحة
+  // تحميل كل الصفحات
   window.addEventListener('DOMContentLoaded', () => {
-    // January (3 صفحات)
     loadPage('january-page-1', '#january-page-1');
     loadPage('january-page-2', '#january-page-2');
     loadPage('january-page-3', '#january-page-3');
 
-    // February
     loadPage('february-page-1', '#february-page-1');
     loadPage('february-page-2', '#february-page-2');
     loadPage('february-page-3', '#february-page-3');
 
-    // March
     loadPage('march-page-1', '#march-page-1');
     loadPage('march-page-2', '#march-page-2');
     loadPage('march-page-3', '#march-page-3');
 
-    // April
     loadPage('april-page-1', '#april-page-1');
     loadPage('april-page-2', '#april-page-2');
     loadPage('april-page-3', '#april-page-3');
 
-    // May
     loadPage('may-page-1', '#may-page-1');
     loadPage('may-page-2', '#may-page-2');
     loadPage('may-page-3', '#may-page-3');
 
-    // June
     loadPage('june-page-1', '#june-page-1');
     loadPage('june-page-2', '#june-page-2');
     loadPage('june-page-3', '#june-page-3');
   });
 
-  // دوال الحفظ اللي بتناديها أزرار Save في الـ HTML
-
-  // January
+  // دوال الحفظ
   window.saveJanuaryPage1 = () => savePage('january-page-1', '#january-page-1', 'January · Page 1');
   window.saveJanuaryPage2 = () => savePage('january-page-2', '#january-page-2', 'January · Page 2');
   window.saveJanuaryPage3 = () => savePage('january-page-3', '#january-page-3', 'January · Page 3');
 
-  // February
   window.saveFebruaryPage1 = () => savePage('february-page-1', '#february-page-1', 'February · Page 1');
   window.saveFebruaryPage2 = () => savePage('february-page-2', '#february-page-2', 'February · Page 2');
   window.saveFebruaryPage3 = () => savePage('february-page-3', '#february-page-3', 'February · Page 3');
 
-  // March
   window.saveMarchPage1 = () => savePage('march-page-1', '#march-page-1', 'March · Page 1');
   window.saveMarchPage2 = () => savePage('march-page-2', '#march-page-2', 'March · Page 2');
   window.saveMarchPage3 = () => savePage('march-page-3', '#march-page-3', 'March · Page 3');
 
-  // April
   window.saveAprilPage1 = () => savePage('april-page-1', '#april-page-1', 'April · Page 1');
   window.saveAprilPage2 = () => savePage('april-page-2', '#april-page-2', 'April · Page 2');
   window.saveAprilPage3 = () => savePage('april-page-3', '#april-page-3', 'April · Page 3');
 
-  // May
   window.saveMayPage1 = () => savePage('may-page-1', '#may-page-1', 'May · Page 1');
   window.saveMayPage2 = () => savePage('may-page-2', '#may-page-2', 'May · Page 2');
   window.saveMayPage3 = () => savePage('may-page-3', '#may-page-3', 'May · Page 3');
 
-  // June
   window.saveJunePage1 = () => savePage('june-page-1', '#june-page-1', 'June · Page 1');
   window.saveJunePage2 = () => savePage('june-page-2', '#june-page-2', 'June · Page 2');
   window.saveJunePage3 = () => savePage('june-page-3', '#june-page-3', 'June · Page 3');
