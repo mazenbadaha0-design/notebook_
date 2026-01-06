@@ -252,6 +252,12 @@
     background: linear-gradient(135deg, #b4745c, #8b4d3c);  /* نفس لون الغلاف */
     color: #fffdf9;
 }
+        /* نلغي الخلفية المسطّرة عن صفحة النهاية */
+.end-cover::before,
+.end-cover::after {
+    content: none;
+}
+
 
 /* نص صفحة النهاية */
 .end-main-title {
