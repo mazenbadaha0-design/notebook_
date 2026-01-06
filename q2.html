@@ -367,7 +367,7 @@
             gap: 4px;
         }
 .page-save-wrap {
-    margin: 6px 0 0;
+    margin: -4px 0 0;   /* نفس ما اعتمدنا في index */
     text-align: center;
 }
 
@@ -379,7 +379,16 @@
     color: #fffdf9;
     cursor: pointer;
     font-size: 12px;
+    opacity: 0;              /* مخفي افتراضياً */
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
+
+.page-save-button.show {
+    opacity: 1;              /* يظهر */
+    pointer-events: auto;
+}
+
         .photo-area {
             position: relative;
             border-radius: 6px;
@@ -465,6 +474,10 @@
             .photo-area {
                 height: 64px;
             }
+             .page-save-wrap {
+        margin: -4px 0 0;    /* المسافة فوق/تحت */
+        
+    }
         }
     </style>
 </head>
@@ -3260,6 +3273,72 @@ No rules, just moments you want to keep.
                 reader.readAsDataURL(file);
             });
         });
+
+         </script> 
+
+<!-- سكربت إظهار/إخفاء زر الحفظ -->
+<script>
+function setupSaveVisibility(pageId) {
+  const container = document.getElementById(pageId);
+  if (!container) return;
+
+  const saveButton = container.parentElement.querySelector('.page-save-button');
+  const fields = container.querySelectorAll('input, textarea');
+
+  function updateVisibility() {
+    let hasContent = false;
+
+    fields.forEach(f => {
+      if (f.value.trim() !== '') {
+        hasContent = true;
+      }
+    });
+
+    if (hasContent) {
+      saveButton.classList.add('show');
+    } else {
+      saveButton.classList.remove('show');
+    }
+  }
+
+  fields.forEach(f => {
+    f.addEventListener('input', updateVisibility);
+  });
+
+  updateVisibility();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // July
+  setupSaveVisibility('july-page-1');
+  setupSaveVisibility('july-page-2');
+  setupSaveVisibility('july-page-3');
+
+  // August
+  setupSaveVisibility('august-page-1');
+  setupSaveVisibility('august-page-2');
+  setupSaveVisibility('august-page-3');
+
+  // September
+  setupSaveVisibility('september-page-1');
+  setupSaveVisibility('september-page-2');
+  setupSaveVisibility('september-page-3');
+
+  // October
+  setupSaveVisibility('october-page-1');
+  setupSaveVisibility('october-page-2');
+  setupSaveVisibility('october-page-3');
+
+  // November
+  setupSaveVisibility('november-page-1');
+  setupSaveVisibility('november-page-2');
+  setupSaveVisibility('november-page-3');
+
+  // December
+  setupSaveVisibility('december-page-1');
+  setupSaveVisibility('december-page-2');
+  setupSaveVisibility('december-page-3');
+});
         
       </script> 
 <script type="module">
