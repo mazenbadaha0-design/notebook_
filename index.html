@@ -367,7 +367,7 @@
             gap: 4px;
         }
 .page-save-wrap {
-    margin: 6px 0 0;
+    margin: -4px 0 0px;
     text-align: center;
 }
 
@@ -379,7 +379,18 @@
     color: #fffdf9;
     cursor: pointer;
     font-size: 12px;
+
+    /* إخفاء افتراضي */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
+
+.page-save-button.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
         .photo-area {
             position: relative;
             border-radius: 6px;
@@ -3246,7 +3257,7 @@ updateButtons();
         // IMAGE PREVIEW FOR ALL PHOTO BOXES
         const photoInputs = document.querySelectorAll('.photo-input');
 
-        photoInputs.forEach(input => {
+               photoInputs.forEach(input => {
             input.addEventListener('change', function () {
                 const file = this.files && this.files[0];
                 if (!file) return;
@@ -3267,6 +3278,70 @@ updateButtons();
                 reader.readAsDataURL(file);
             });
         });
+
+
+// ==== إظهار/إخفاء زر الحفظ حسب الكتابة ==== 
+function setupSaveVisibility(pageId) {
+  const container = document.getElementById(pageId);
+  if (!container) return;
+
+  const saveButton = container.parentElement.querySelector('.page-save-button');
+  const fields = container.querySelectorAll('input, textarea');
+
+  function updateVisibility() {
+    let hasContent = false;
+
+    fields.forEach(f => {
+      if (f.value.trim() !== '') {
+        hasContent = true;
+      }
+    });
+
+    if (hasContent) {
+      saveButton.classList.add('show');
+    } else {
+      saveButton.classList.remove('show');
+    }
+  }
+
+  fields.forEach(f => {
+    f.addEventListener('input', updateVisibility);
+  });
+
+  updateVisibility();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // January
+  setupSaveVisibility('january-page-1');
+  setupSaveVisibility('january-page-2');
+  setupSaveVisibility('january-page-3');
+
+  // February
+  setupSaveVisibility('february-page-1');
+  setupSaveVisibility('february-page-2');
+  setupSaveVisibility('february-page-3');
+
+  // March
+  setupSaveVisibility('march-page-1');
+  setupSaveVisibility('march-page-2');
+  setupSaveVisibility('march-page-3');
+
+  // April
+  setupSaveVisibility('april-page-1');
+  setupSaveVisibility('april-page-2');
+  setupSaveVisibility('april-page-3');
+
+  // May
+  setupSaveVisibility('may-page-1');
+  setupSaveVisibility('may-page-2');
+  setupSaveVisibility('may-page-3');
+
+  // June
+  setupSaveVisibility('june-page-1');
+  setupSaveVisibility('june-page-2');
+  setupSaveVisibility('june-page-3');
+});
         
       </script> 
 <script type="module">
