@@ -3364,6 +3364,22 @@ No rules, just moments you want to keep.
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
+  // ===== دالة تحويل رابط Google Drive إلى ثامبنيل =====
+  function driveShareToThumbnail(url, size = 600) {
+    if (!url) return "";
+
+    // نتوقع رابط مثل:
+    // https://drive.google.com/file/d/FILE_ID/view?usp=...
+    const match = url.match(/\/d\/([^/]+)/);
+    if (!match) {
+      // لو مش من هذا النوع، رجّع الرابط كما هو
+      return url;
+    }
+
+    const fileId = match[1];
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${size}`;
+  }
+
   // نخزن الأصل لكل صفحة
   window.originalPages = {};
 
@@ -3402,7 +3418,9 @@ No rules, just moments you want to keep.
 
         if (img) {
           if (urlVal) {
-            img.src = urlVal;
+            // هنا نستخدم رابط الثامبنيل بدل رابط درايف الأصلي
+            const thumbUrl = driveShareToThumbnail(urlVal, 600);
+            img.src = thumbUrl;
             img.style.display = 'block';
             if (span) span.style.display = 'none';
           } else {
@@ -3591,6 +3609,3 @@ No rules, just moments you want to keep.
   window.saveJunePage2 = () => savePage('june-page-2', '#june-page-2', 'June · Page 2');
   window.saveJunePage3 = () => savePage('june-page-3', '#june-page-3', 'June · Page 3');
 </script>
-
-</body>
-</html>
