@@ -3402,8 +3402,36 @@ No rules, just moments you want to keep.
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  // نخزن الأصل لكل صفحة في q2
+  // نخزن الأصل لكل صفحة في q2 (لزر Save)
   window.originalPagesQ2 = {};
+
+  // صفحات Q2 كلها مع الـ selector
+  const Q2_PAGES = [
+    // July
+    { id: 'july-page-1',      selector: '#july-page-1' },
+    { id: 'july-page-2',      selector: '#july-page-2' },
+    { id: 'july-page-3',      selector: '#july-page-3' },
+    // August
+    { id: 'august-page-1',    selector: '#august-page-1' },
+    { id: 'august-page-2',    selector: '#august-page-2' },
+    { id: 'august-page-3',    selector: '#august-page-3' },
+    // September
+    { id: 'september-page-1', selector: '#september-page-1' },
+    { id: 'september-page-2', selector: '#september-page-2' },
+    { id: 'september-page-3', selector: '#september-page-3' },
+    // October
+    { id: 'october-page-1',   selector: '#october-page-1' },
+    { id: 'october-page-2',   selector: '#october-page-2' },
+    { id: 'october-page-3',   selector: '#october-page-3' },
+    // November
+    { id: 'november-page-1',  selector: '#november-page-1' },
+    { id: 'november-page-2',  selector: '#november-page-2' },
+    { id: 'november-page-3',  selector: '#november-page-3' },
+    // December
+    { id: 'december-page-1',  selector: '#december-page-1' },
+    { id: 'december-page-2',  selector: '#december-page-2' },
+    { id: 'december-page-3',  selector: '#december-page-3' }
+  ];
 
   // دالة عامة لتحميل صفحة (أي Grid صور)
   async function loadPage(pageId, gridSelector) {
@@ -3466,50 +3494,9 @@ No rules, just moments you want to keep.
 
     window.originalPagesQ2[pageId] = original;
 
-    // بعد التحميل نفعّل مراقبة الزر لهاي الصفحة
+    // بعد التحميل نفعّل مراقبة الزر لهاي الصفحة (لو كانت الدالة موجودة من ملف ثاني)
     if (window.setupPageSaveVisibilityQ2) {
-      if (pageId === 'july-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#july-page-1', () => saveJulyPage1());
-      } else if (pageId === 'july-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#july-page-2', () => saveJulyPage2());
-      } else if (pageId === 'july-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#july-page-3', () => saveJulyPage3());
-
-      } else if (pageId === 'august-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#august-page-1', () => saveAugustPage1());
-      } else if (pageId === 'august-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#august-page-2', () => saveAugustPage2());
-      } else if (pageId === 'august-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#august-page-3', () => saveAugustPage3());
-
-      } else if (pageId === 'september-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#september-page-1', () => saveSeptemberPage1());
-      } else if (pageId === 'september-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#september-page-2', () => saveSeptemberPage2());
-      } else if (pageId === 'september-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#september-page-3', () => saveSeptemberPage3());
-
-      } else if (pageId === 'october-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#october-page-1', () => saveOctoberPage1());
-      } else if (pageId === 'october-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#october-page-2', () => saveOctoberPage2());
-      } else if (pageId === 'october-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#october-page-3', () => saveOctoberPage3());
-
-      } else if (pageId === 'november-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#november-page-1', () => saveNovemberPage1());
-      } else if (pageId === 'november-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#november-page-2', () => saveNovemberPage2());
-      } else if (pageId === 'november-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#november-page-3', () => saveNovemberPage3());
-
-      } else if (pageId === 'december-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#december-page-1', () => saveDecemberPage1());
-      } else if (pageId === 'december-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#december-page-2', () => saveDecemberPage2());
-      } else if (pageId === 'december-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#december-page-3', () => saveDecemberPage3());
-      }
+      window.setupPageSaveVisibilityQ2(pageId, gridSelector, () => savePage(pageId, gridSelector, makeLabelFromId(pageId)));
     }
   }
 
@@ -3539,95 +3526,33 @@ No rules, just moments you want to keep.
     window.originalPagesQ2[pageId] = { ...payload };
 
     if (window.setupPageSaveVisibilityQ2) {
-      if (pageId === 'july-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#july-page-1', () => saveJulyPage1());
-      } else if (pageId === 'july-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#july-page-2', () => saveJulyPage2());
-      } else if (pageId === 'july-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#july-page-3', () => saveJulyPage3());
-
-      } else if (pageId === 'august-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#august-page-1', () => saveAugustPage1());
-      } else if (pageId === 'august-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#august-page-2', () => saveAugustPage2());
-      } else if (pageId === 'august-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#august-page-3', () => saveAugustPage3());
-
-      } else if (pageId === 'september-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#september-page-1', () => saveSeptemberPage1());
-      } else if (pageId === 'september-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#september-page-2', () => saveSeptemberPage2());
-      } else if (pageId === 'september-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#september-page-3', () => saveSeptemberPage3());
-
-      } else if (pageId === 'october-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#october-page-1', () => saveOctoberPage1());
-      } else if (pageId === 'october-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#october-page-2', () => saveOctoberPage2());
-      } else if (pageId === 'october-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#october-page-3', () => saveOctoberPage3());
-
-      } else if (pageId === 'november-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#november-page-1', () => saveNovemberPage1());
-      } else if (pageId === 'november-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#november-page-2', () => saveNovemberPage2());
-      } else if (pageId === 'november-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#november-page-3', () => saveNovemberPage3());
-
-      } else if (pageId === 'december-page-1') {
-        window.setupPageSaveVisibilityQ2(pageId, '#december-page-1', () => saveDecemberPage1());
-      } else if (pageId === 'december-page-2') {
-        window.setupPageSaveVisibilityQ2(pageId, '#december-page-2', () => saveDecemberPage2());
-      } else if (pageId === 'december-page-3') {
-        window.setupPageSaveVisibilityQ2(pageId, '#december-page-3', () => saveDecemberPage3());
-      }
+      window.setupPageSaveVisibilityQ2(pageId, gridSelector, () => savePage(pageId, gridSelector, label));
     }
   }
 
-  // تحميل صفحات July–December عند فتح الصفحة
+  // تحويل ID لليبل حلو للـ alert
+  function makeLabelFromId(pageId) {
+    // مثلا: "july-page-1" -> "July · Page 1"
+    const [month, , pageNum] = pageId.split('-');
+    const monthName = month.charAt(0).toUpperCase() + month.slice(1);
+    return `${monthName} · Page ${pageNum}`;
+  }
+
+  // نحمّل كل صفحات Q2 عند فتح الصفحة
   window.addEventListener('DOMContentLoaded', () => {
-    // July
-    loadPage('july-page-1', '#july-page-1');
-    loadPage('july-page-2', '#july-page-2');
-    loadPage('july-page-3', '#july-page-3');
-
-    // August
-    loadPage('august-page-1', '#august-page-1');
-    loadPage('august-page-2', '#august-page-2');
-    loadPage('august-page-3', '#august-page-3');
-
-    // September
-    loadPage('september-page-1', '#september-page-1');
-    loadPage('september-page-2', '#september-page-2');
-    loadPage('september-page-3', '#september-page-3');
-
-    // October
-    loadPage('october-page-1', '#october-page-1');
-    loadPage('october-page-2', '#october-page-2');
-    loadPage('october-page-3', '#october-page-3');
-
-    // November
-    loadPage('november-page-1', '#november-page-1');
-    loadPage('november-page-2', '#november-page-2');
-    loadPage('november-page-3', '#november-page-3');
-
-    // December
-    loadPage('december-page-1', '#december-page-1');
-    loadPage('december-page-2', '#december-page-2');
-    loadPage('december-page-3', '#december-page-3');
+    Q2_PAGES.forEach(p => loadPage(p.id, p.selector));
   });
 
-  // دوال الحفظ اللي بتناديها أزرار Save في q2.html
-
+  // نعرّف دوال الحفظ باسماء ثابتة عشان أزرار Save الموجودة في HTML
   // July
-  window.saveJulyPage1 = () => savePage('july-page-1', '#july-page-1', 'July · Page 1');
-  window.saveJulyPage2 = () => savePage('july-page-2', '#july-page-2', 'July · Page 2');
-  window.saveJulyPage3 = () => savePage('july-page-3', '#july-page-3', 'July · Page 3');
+  window.saveJulyPage1     = () => savePage('july-page-1',      '#july-page-1',      'July · Page 1');
+  window.saveJulyPage2     = () => savePage('july-page-2',      '#july-page-2',      'July · Page 2');
+  window.saveJulyPage3     = () => savePage('july-page-3',      '#july-page-3',      'July · Page 3');
 
   // August
-  window.saveAugustPage1 = () => savePage('august-page-1', '#august-page-1', 'August · Page 1');
-  window.saveAugustPage2 = () => savePage('august-page-2', '#august-page-2', 'August · Page 2');
-  window.saveAugustPage3 = () => savePage('august-page-3', '#august-page-3', 'August · Page 3');
+  window.saveAugustPage1   = () => savePage('august-page-1',    '#august-page-1',    'August · Page 1');
+  window.saveAugustPage2   = () => savePage('august-page-2',    '#august-page-2',    'August · Page 2');
+  window.saveAugustPage3   = () => savePage('august-page-3',    '#august-page-3',    'August · Page 3');
 
   // September
   window.saveSeptemberPage1 = () => savePage('september-page-1', '#september-page-1', 'September · Page 1');
@@ -3635,21 +3560,17 @@ No rules, just moments you want to keep.
   window.saveSeptemberPage3 = () => savePage('september-page-3', '#september-page-3', 'September · Page 3');
 
   // October
-  window.saveOctoberPage1 = () => savePage('october-page-1', '#october-page-1', 'October · Page 1');
-  window.saveOctoberPage2 = () => savePage('october-page-2', '#october-page-2', 'October · Page 2');
-  window.saveOctoberPage3 = () => savePage('october-page-3', '#october-page-3', 'October · Page 3');
+  window.saveOctoberPage1  = () => savePage('october-page-1',   '#october-page-1',   'October · Page 1');
+  window.saveOctoberPage2  = () => savePage('october-page-2',   '#october-page-2',   'October · Page 2');
+  window.saveOctoberPage3  = () => savePage('october-page-3',   '#october-page-3',   'October · Page 3');
 
   // November
-  window.saveNovemberPage1 = () => savePage('november-page-1', '#november-page-1', 'November · Page 1');
-  window.saveNovemberPage2 = () => savePage('november-page-2', '#november-page-2', 'November · Page 2');
-  window.saveNovemberPage3 = () => savePage('november-page-3', '#november-page-3', 'November · Page 3');
+  window.saveNovemberPage1 = () => savePage('november-page-1',  '#november-page-1',  'November · Page 1');
+  window.saveNovemberPage2 = () => savePage('november-page-2',  '#november-page-2',  'November · Page 2');
+  window.saveNovemberPage3 = () => savePage('november-page-3',  '#november-page-3',  'November · Page 3');
 
   // December
-  window.saveDecemberPage1 = () => savePage('december-page-1', '#december-page-1', 'December · Page 1');
-  window.saveDecemberPage2 = () => savePage('december-page-2', '#december-page-2', 'December · Page 2');
-  window.saveDecemberPage3 = () => savePage('december-page-3', '#december-page-3', 'December · Page 3');
+  window.saveDecemberPage1 = () => savePage('december-page-1',  '#december-page-1',  'December · Page 1');
+  window.saveDecemberPage2 = () => savePage('december-page-2',  '#december-page-2',  'December · Page 2');
+  window.saveDecemberPage3 = () => savePage('december-page-3',  '#december-page-3',  'December · Page 3');
 </script>
-
-
-</body>
-</html>
